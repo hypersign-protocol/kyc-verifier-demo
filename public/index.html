@@ -50,17 +50,18 @@
         }
 
         .kycbuttonContainer {
+            width: 50%;
+            justify-content: center;
+            display: flex;
+            margin-left: 25%;
             display: flex;
             justify-content: center;
             align-items: center;
             text-align: center;
             height: 200px;
-            width: 100%;
             padding: 20px;
             background: whitesmoke;
             margin-top: 2%;
-            max-width: 30%;
-            margin-left: 35%;
             border-radius: 20px;
         }
     </style>
@@ -79,12 +80,15 @@
         </button>
     </nav>
 
-    <div id="alert" style="width: 300px;float: right;">
-    </div>
-    <div class="kycbuttonContainer">
-        <button type="button" class="btn btn-primary btn-lg" id="load2">
-            <i class="bi bi-person-bounding-box"></i> Verify Your KYC
-        </button>
+    <div class="kycbuttonContainer" id="kycbuttonContainer">
+        <span>
+            <button type="button" class="btn btn-primary btn-lg" id="load2">
+                <i class="bi bi-person-bounding-box"></i> Verify Your KYC
+            </button>
+            <span id="result">
+
+            </span>
+        </span>
     </div>
     <div class="idTokenContainer">
         <div id="userData" class="userData"></div>
@@ -109,12 +113,9 @@
                 // Handle the message data sent from the popup
                 console.log('Received message from popup:', event.data);
 
-                const alertDiv = document.getElementById('alert')
+
                 if (data.status === 'success') {
-                    alertDiv.innerHTML = `
-                    <div class=" alert alert-primary" role="alert">
-            Successfully verified the user!
-        </div>`
+
                     idTokenGbl = data.idToken
                     fetchUserData()
                     const userDataDiv = document.getElementById('userData')
@@ -134,11 +135,12 @@
         </div>
         `
                 }
-                const button = document.getElementById('load2')
-                button.innerHTML = `
-        <i class="bi bi-check"></i>You are verified!
-        `
-                button.attributes('disabled', true)
+                const result = document.getElementById('result')
+                result.innerHTML = `
+                <h2><i class="bi bi-check"></i> You are verified!</h2>
+                `
+                document.getElementById('load2').style.display = 'none'
+                document.getElementById('kycbuttonContainer').style.backgroundColor = '#00800030'
             }
         });
         $('.btn').on('click', function () {
