@@ -14,6 +14,56 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+
+    <style>
+        .idTokenContainer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 100%;
+            width: 100%;
+            padding: 10px
+        }
+
+        .show {
+            display: block;
+            visibility: visible;
+
+        }
+
+        .hide {
+
+            visibility: hidden;
+        }
+
+        .userData {
+            width: 50%;
+            min-height: 70px;
+            height: 100%;
+            text-align: left;
+            word-wrap: break-word;
+            padding: 20px;
+            border-radius: 20px;
+            background: whitesmoke;
+            margin-top: 2%;
+        }
+
+        .kycbuttonContainer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 200px;
+            width: 100%;
+            padding: 20px;
+            background: whitesmoke;
+            margin-top: 2%;
+            max-width: 30%;
+            margin-left: 35%;
+            border-radius: 20px;
+        }
+    </style>
 </head>
 
 <body>
@@ -31,43 +81,26 @@
 
     <div id="alert" style="width: 300px;float: right;">
     </div>
-    <div style="
-        display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    height: 200px;
-    width: 100%;
-    padding: 20px;
-    background: whitesmoke;
-    margin-top: 2%;
-    max-width: 30%;
-    margin-left: 35%;
-    border-radius: 20px;
-    ">
+    <div class="kycbuttonContainer">
         <button type="button" class="btn btn-primary btn-lg" id="load2">
             <i class="bi bi-person-bounding-box"></i> Verify Your KYC
         </button>
     </div>
-    <div
-        style="display: flex; justify-content: center;align-items: center;text-align: center;height: 100%; width: 100%;">
-        <div id="userData" style="
-        width: 50%;
-    min-height: 70px;
-    height: 100%;
-    text-align: left;
-    word-wrap: break-word;
-    padding: 5px;
-    border-radius: 20px;
-    background: whitesmoke;
-    margin-top: 2%;">
-        </div>
+    <div class="idTokenContainer">
+        <div id="userData" class="userData"></div>
+    </div>
 
+    <div class="idTokenContainer">
+        <pre id="actualData" class="userData" style="    max-height: 400px;overflow-y: scroll;"></pre>
     </div>
 
     <script>
         const widgetBaseUrl = "https://hypersign-kyc-widget.netlify.app"
         // const widgetBaseUrl = "http://localhost:4999"
+        const kycTenantUrl = 'https://ent-b3abc92.api.cavach.hypersign.id'
+        const consentAPIpath = '/api/v1/e-kyc/verification/consent'
+        let idTokenGbl = ""
+
         window.addEventListener('message', function (event) {
             console.log('Inside message', event.data)
 
@@ -82,8 +115,17 @@
                     <div class=" alert alert-primary" role="alert">
             Successfully verified the user!
         </div>`
+                    idTokenGbl = data.idToken
+                    fetchUserData()
                     const userDataDiv = document.getElementById('userData')
-                    userDataDiv.innerText = 'idToken = ' + data.idToken
+                    userDataDiv.innerHTML = `
+                        <p>
+                            idToken:
+                        </p>    
+                        <p>
+                            ${data.idToken}
+                        </p>
+                    `
                 }
                 else if (data.status === 'fail') {
                     alertDiv.innerHTML = `
@@ -108,10 +150,12 @@
         `
             const url = getWidgetUrl()
             console.log(url)
-            //'http://localhost:4999?cavachAccessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImIzZjA1MDk3ZTI4YWZlODM2MDRlY2ZmZGM3N2UxNTBhYWFlOCIsInVzZXJJZCI6ImMyMjM4NDlmLTYyMTUtNGQ1OS1hZmI0LWFjYTYxODAyZDUxNyIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX2t5YyIsImttc0lkIjoiaHM6ZG9jOmItZXlnenluZjNkdmd4NGR2d2ttMWIzamE1M19kd2Nxd2lrYjN4eWU3MzQiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtYjNhYmM5MiIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6YjNmMDUwOTdlMjhhZmU4MzYwNGVjZmZkYzc3ZTE1MGFhYWU4IiwiaWF0IjoxNzEwMjI3ODQwLCJleHAiOjE5MTAyNDIyNDB9.9kRYHjQOLJei9b9-07GaHNC_e8sxi-jne5HhUqhBYME&ssiAccessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImVkYTM4MjM4MjYxOTFiMmU5YmEzNDRhY2JjNTQ4ZGE1ZjRlMCIsInVzZXJJZCI6ImMyMjM4NDlmLTYyMTUtNGQ1OS1hZmI0LWFjYTYxODAyZDUxNyIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX3NzaSIsImttc0lkIjoiaHM6ZG9jOnZycWN5amZodWV1anNqZGs3cF8wNDhrbHNtNHAtYzF1d25wdWhfdmlkbDgiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtMGJjZTU1YSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6ZWRhMzgyMzgyNjE5MWIyZTliYTM0NGFjYmM1NDhkYTVmNGUwIiwiaWF0IjoxNzEwMjI3ODY2LCJleHAiOjE5MTAyNDIyNjZ9.OkC1zM4sKDEQ-oaUIAKdBga8_Lk1a2RGDYD4O3jeQwA&pr=eyJxdWVyeSI6W3sidHlwZSI6IlF1ZXJ5QnlFeGFtcGxlIiwiY3JlZGVudGlhbFF1ZXJ5IjpbeyJleGFtcGxlIjp7InR5cGUiOiJQZXJzb25ob29kQ3JlZGVudGlhbCIsImNyZWRlbnRpYWxTY2hlbWEiOnsiaWQiOiJzY2g6aGlkOnRlc3RuZXQ6ejZNa3Z0ZDczZERnZzdIVTh3TENtWGJlMlJBSFBBVTFFeDFWVVhDRnRQVjd1MzZpOjEuMCJ9fSwidHJ1c3RlZElzc3VlciI6W3sicmVxdWlyZWQiOnRydWUsImlzc3VlciI6ImRpZDpoaWQ6dGVzdG5ldDp6Q3lBejJ3ZktqQWFXRTRGVzc1S3hwWmgyd3VvOWtSQVVaeVYyeEVlOTNjS3IifV19XX0seyJ0eXBlIjoiUXVlcnlCeUV4YW1wbGUiLCJjcmVkZW50aWFsUXVlcnkiOlt7ImV4YW1wbGUiOnsidHlwZSI6IlBhc3Nwb3J0Q3JlZGVudGlhbCIsImNyZWRlbnRpYWxTY2hlbWEiOnsiaWQiOiJzY2g6aGlkOnRlc3RuZXQ6ejZNa2dNWFhRTDdZRDdCdWZOTGJqcnd1ZW9qNG5taWg5eHVqSjZhb3pKRG16Rld4OjEuMCJ9fSwidHJ1c3RlZElzc3VlciI6W3sicmVxdWlyZWQiOnRydWUsImlzc3VlciI6ImRpZDpoaWQ6dGVzdG5ldDp6Q3lBejJ3ZktqQWFXRTRGVzc1S3hwWmgyd3VvOWtSQVVaeVYyeEVlOTNjS3IifV19XX1dLCJyZWFzb24iOiJDb21kZXggbmVlZCB5b3VyIHRoZXNlIGluZm9ybWF0aW9uIHRvIGFsbG93IHlvdSBhY2Nlc3MiLCJpc3N1ZXJESUQiOiJkaWQ6aGlkOnRlc3RuZXQ6M2QxMWU0MGYtMjI1MC00ODQ2LWJkMjMtYmZiNThjZjRlZWE1IiwiaXNzdWVyRElEVmVyaWZpY2F0aW9uTWV0aG9kIjoiZGlkOmhpZDp0ZXN0bmV0OjNkMTFlNDBmLTIyNTAtNDg0Ni1iZDIzLWJmYjU4Y2Y0ZWVhNSNrZXktMSIsImRvbWFpbiI6Imh0dHA6Ly9sb2NhbGhvc3Q6NjAwNiIsImxvZ29VcmwiOiJodHRwczovL2VuY3J5cHRlZC10Ym4wLmdzdGF0aWMuY29tL2ltYWdlcz9xPXRibjpBTmQ5R2NRTXNKX3BtLXVQZG1fTXlOeVJOcEI5UlhsbnAzZjlGczFHUFEmdXNxcD1DQVUifQ==&redirectUrl=https://google.com'
             var popup = window.open(url, 'Popup Window', 'width=850,height=860');
         });
 
+        function getKYCAccessToken() {
+            return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImIzZjA1MDk3ZTI4YWZlODM2MDRlY2ZmZGM3N2UxNTBhYWFlOCIsInVzZXJJZCI6ImMyMjM4NDlmLTYyMTUtNGQ1OS1hZmI0LWFjYTYxODAyZDUxNyIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX2t5YyIsImttc0lkIjoiaHM6ZG9jOmItZXlnenluZjNkdmd4NGR2d2ttMWIzamE1M19kd2Nxd2lrYjN4eWU3MzQiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtYjNhYmM5MiIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6YjNmMDUwOTdlMjhhZmU4MzYwNGVjZmZkYzc3ZTE1MGFhYWU4IiwiaWF0IjoxNzEwMjI3ODQwLCJleHAiOjE5MTAyNDIyNDB9.9kRYHjQOLJei9b9-07GaHNC_e8sxi-jne5HhUqhBYME"
+        }
 
         function getWidgetUrl() {
             // Data
@@ -121,8 +165,8 @@
             const reason = "The Verifier need your these information to allow you access"
 
             //// Access tokens
-            const cavachAccessToken =
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImIzZjA1MDk3ZTI4YWZlODM2MDRlY2ZmZGM3N2UxNTBhYWFlOCIsInVzZXJJZCI6ImMyMjM4NDlmLTYyMTUtNGQ1OS1hZmI0LWFjYTYxODAyZDUxNyIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX2t5YyIsImttc0lkIjoiaHM6ZG9jOmItZXlnenluZjNkdmd4NGR2d2ttMWIzamE1M19kd2Nxd2lrYjN4eWU3MzQiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtYjNhYmM5MiIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6YjNmMDUwOTdlMjhhZmU4MzYwNGVjZmZkYzc3ZTE1MGFhYWU4IiwiaWF0IjoxNzEwMjI3ODQwLCJleHAiOjE5MTAyNDIyNDB9.9kRYHjQOLJei9b9-07GaHNC_e8sxi-jne5HhUqhBYME"
+            const cavachAccessToken = getKYCAccessToken()
+
             const ssiAccessToken =
                 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImVkYTM4MjM4MjYxOTFiMmU5YmEzNDRhY2JjNTQ4ZGE1ZjRlMCIsInVzZXJJZCI6ImMyMjM4NDlmLTYyMTUtNGQ1OS1hZmI0LWFjYTYxODAyZDUxNyIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX3NzaSIsImttc0lkIjoiaHM6ZG9jOnZycWN5amZodWV1anNqZGs3cF8wNDhrbHNtNHAtYzF1d25wdWhfdmlkbDgiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtMGJjZTU1YSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6ZWRhMzgyMzgyNjE5MWIyZTliYTM0NGFjYmM1NDhkYTVmNGUwIiwiaWF0IjoxNzEwMjI3ODY2LCJleHAiOjE5MTAyNDIyNjZ9.OkC1zM4sKDEQ-oaUIAKdBga8_Lk1a2RGDYD4O3jeQwA"
             const redirectUrl = "https://google.com"
@@ -185,11 +229,24 @@
 
         }
 
+        async function fetchUserData() {
+            try {
 
-
-
-
-
+                const idToken = idTokenGbl
+                const url = `${kycTenantUrl}${consentAPIpath}?idToken=${idToken}`
+                const headers = {
+                    'Authorization': 'Bearer ' + getKYCAccessToken(),
+                    'content-type': 'application/json'
+                }
+                const resp = await fetch(url, {
+                    headers
+                })
+                const json = await resp.json()
+                document.getElementById('actualData').textContent = JSON.stringify(json, undefined, 2)
+            } catch (e) {
+                console.error(e)
+            }
+        }
     </script>
 </body>
 
