@@ -171,7 +171,6 @@
 
             const ssiAccessToken =
                 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImVkYTM4MjM4MjYxOTFiMmU5YmEzNDRhY2JjNTQ4ZGE1ZjRlMCIsInVzZXJJZCI6ImMyMjM4NDlmLTYyMTUtNGQ1OS1hZmI0LWFjYTYxODAyZDUxNyIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX3NzaSIsImttc0lkIjoiaHM6ZG9jOnZycWN5amZodWV1anNqZGs3cF8wNDhrbHNtNHAtYzF1d25wdWhfdmlkbDgiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtMGJjZTU1YSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6ZWRhMzgyMzgyNjE5MWIyZTliYTM0NGFjYmM1NDhkYTVmNGUwIiwiaWF0IjoxNzEwMjI3ODY2LCJleHAiOjE5MTAyNDIyNjZ9.OkC1zM4sKDEQ-oaUIAKdBga8_Lk1a2RGDYD4O3jeQwA"
-            const redirectUrl = "https://google.com"
             //// ----------------------------------------------------------------
 
             const presentationRequest = {
@@ -226,7 +225,7 @@
             console.log(presentationRequestStr)
             const prBase64 = btoa(presentationRequestStr)
             const finalUrl =
-                `${widgetBaseUrl}?cavachAccessToken=${cavachAccessToken}&ssiAccessToken=${ssiAccessToken}&pr=${prBase64}&redirectUrl=${redirectUrl}`
+                `${widgetBaseUrl}?kycAccessToken=${cavachAccessToken}&ssiAccessToken=${ssiAccessToken}&pr=${prBase64}`
             return finalUrl
 
         }
