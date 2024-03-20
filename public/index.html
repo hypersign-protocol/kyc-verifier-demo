@@ -101,7 +101,7 @@
     <script>
         const widgetBaseUrl = "https://hypersign-kyc-widget.netlify.app"
         // const widgetBaseUrl = "http://localhost:4999"
-        const kycTenantUrl = 'https://ent-b3abc92.api.cavach.hypersign.id'
+        const kycTenantUrl = 'https://ent-4c71874.api.cavach.hypersign.id'
         const consentAPIpath = '/api/v1/e-kyc/verification/consent'
         let idTokenGbl = ""
 
@@ -156,7 +156,7 @@
         });
 
         function getKYCAccessToken() {
-            return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImIzZjA1MDk3ZTI4YWZlODM2MDRlY2ZmZGM3N2UxNTBhYWFlOCIsInVzZXJJZCI6ImMyMjM4NDlmLTYyMTUtNGQ1OS1hZmI0LWFjYTYxODAyZDUxNyIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX2t5YyIsImttc0lkIjoiaHM6ZG9jOmItZXlnenluZjNkdmd4NGR2d2ttMWIzamE1M19kd2Nxd2lrYjN4eWU3MzQiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtYjNhYmM5MiIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6YjNmMDUwOTdlMjhhZmU4MzYwNGVjZmZkYzc3ZTE1MGFhYWU4IiwiaWF0IjoxNzEwMjI3ODQwLCJleHAiOjE5MTAyNDIyNDB9.9kRYHjQOLJei9b9-07GaHNC_e8sxi-jne5HhUqhBYME"
+            return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjEzZjcwZmFmN2Y1YzVkMDM1MjBiNzExODExMzZiNTk1ZjdjNiIsInVzZXJJZCI6ImNjZWJlOWNlLWM1MzItNDVmNS1hNzlhLWZkZDRjMzAxYTljOCIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX2t5YyIsImttc0lkIjoiaHM6ZG9jOnA2bWwyNGVrLTE4aWljNm05cXhpdmJta2llX3ppbmM4amtua3RrZ3l0dGkiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtNGM3MTg3NCIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6MTNmNzBmYWY3ZjVjNWQwMzUyMGI3MTE4MTEzNmI1OTVmN2M2IiwiaWF0IjoxNzEwOTIyODgzLCJleHAiOjE3MzQxMDY4ODN9.td8yDajb_4ox0d55JHymvAZKJJI-onJUWTm8E3nMU_0"
         }
 
         function getWidgetUrl() {
@@ -170,7 +170,7 @@
             const cavachAccessToken = getKYCAccessToken()
 
             const ssiAccessToken =
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImVkYTM4MjM4MjYxOTFiMmU5YmEzNDRhY2JjNTQ4ZGE1ZjRlMCIsInVzZXJJZCI6ImMyMjM4NDlmLTYyMTUtNGQ1OS1hZmI0LWFjYTYxODAyZDUxNyIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX3NzaSIsImttc0lkIjoiaHM6ZG9jOnZycWN5amZodWV1anNqZGs3cF8wNDhrbHNtNHAtYzF1d25wdWhfdmlkbDgiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtMGJjZTU1YSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6ZWRhMzgyMzgyNjE5MWIyZTliYTM0NGFjYmM1NDhkYTVmNGUwIiwiaWF0IjoxNzEwMjI3ODY2LCJleHAiOjE5MTAyNDIyNjZ9.OkC1zM4sKDEQ-oaUIAKdBga8_Lk1a2RGDYD4O3jeQwA"
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjA2MTMyZDQ5YWJiOTE4OGY2ZGRhODc1M2NkN2Q0YTM0MWQ3NSIsInVzZXJJZCI6ImNjZWJlOWNlLWM1MzItNDVmNS1hNzlhLWZkZDRjMzAxYTljOCIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX3NzaSIsImttc0lkIjoiaHM6ZG9jOjFfZmhkbl9yXzBpbXJkZ3p0ZnJxaWRrdWdvXzhhbi1jdC16ZnN5Nmo3bnUiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtZjMwMjdhZCIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6MDYxMzJkNDlhYmI5MTg4ZjZkZGE4NzUzY2Q3ZDRhMzQxZDc1IiwiaWF0IjoxNzEwOTIyODI5LCJleHAiOjE3MzQxMDY4Mjl9.DdPh8x-9C0vBVXh9SzPItNJS5kL6RmR6caGf4r3YH2M"
             //// ----------------------------------------------------------------
 
             const presentationRequest = {
