@@ -101,8 +101,9 @@
     <script>
         const widgetBaseUrl = "https://hypersign-kyc-widget.netlify.app"
         // const widgetBaseUrl = "http://localhost:4999"
+        // const kycTenantUrl = "http://ent-b3abc92.localhost:3001"
         const kycTenantUrl = 'https://ent-4c71874.api.cavach.hypersign.id'
-        const consentAPIpath = '/api/v1/e-kyc/verification/consent'
+        const consentAPIpath = '/api/v1/e-kyc/verification/user-consent'
         let idTokenGbl = ""
 
         window.addEventListener('message', function (event) {
@@ -156,7 +157,7 @@
         });
 
         function getKYCAccessToken() {
-            return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjEzZjcwZmFmN2Y1YzVkMDM1MjBiNzExODExMzZiNTk1ZjdjNiIsInVzZXJJZCI6ImNjZWJlOWNlLWM1MzItNDVmNS1hNzlhLWZkZDRjMzAxYTljOCIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX2t5YyIsImttc0lkIjoiaHM6ZG9jOnA2bWwyNGVrLTE4aWljNm05cXhpdmJta2llX3ppbmM4amtua3RrZ3l0dGkiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtNGM3MTg3NCIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6MTNmNzBmYWY3ZjVjNWQwMzUyMGI3MTE4MTEzNmI1OTVmN2M2IiwiaWF0IjoxNzEwOTIyODgzLCJleHAiOjE3MzQxMDY4ODN9.td8yDajb_4ox0d55JHymvAZKJJI-onJUWTm8E3nMU_0"
+            return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjEzZjcwZmFmN2Y1YzVkMDM1MjBiNzExODExMzZiNTk1ZjdjNiIsInVzZXJJZCI6ImNjZWJlOWNlLWM1MzItNDVmNS1hNzlhLWZkZDRjMzAxYTljOCIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX2t5YyIsImttc0lkIjoiaHM6ZG9jOnA2bWwyNGVrLTE4aWljNm05cXhpdmJta2llX3ppbmM4amtua3RrZ3l0dGkiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtNGM3MTg3NCIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6MTNmNzBmYWY3ZjVjNWQwMzUyMGI3MTE4MTEzNmI1OTVmN2M2IiwiYWNjZXNzTGlzdCI6WyJBTEwiLCJSRUFEX1VTRVJfQ09OU0VOVCIsIldSSVRFX1VTRVJfQ09OU0VOVCIsIldSSVRFX1BBU1NJVkVfTElWRUxJTkVTUyIsIldSSVRFX0RPQ19PQ1IiXSwiaWF0IjoxNzExNDQ0MjMxLCJleHAiOjE4NjY5NjQyMzF9.mlOWBErMXVak9QGtmPnlIZdmlW1NBIbpJuTgIJ9b8kI"
         }
 
         function getWidgetUrl() {
@@ -170,7 +171,7 @@
             const cavachAccessToken = getKYCAccessToken()
 
             const ssiAccessToken =
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjA2MTMyZDQ5YWJiOTE4OGY2ZGRhODc1M2NkN2Q0YTM0MWQ3NSIsInVzZXJJZCI6ImNjZWJlOWNlLWM1MzItNDVmNS1hNzlhLWZkZDRjMzAxYTljOCIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX3NzaSIsImttc0lkIjoiaHM6ZG9jOjFfZmhkbl9yXzBpbXJkZ3p0ZnJxaWRrdWdvXzhhbi1jdC16ZnN5Nmo3bnUiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtZjMwMjdhZCIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6MDYxMzJkNDlhYmI5MTg4ZjZkZGE4NzUzY2Q3ZDRhMzQxZDc1IiwiaWF0IjoxNzEwOTIyODI5LCJleHAiOjE3MzQxMDY4Mjl9.DdPh8x-9C0vBVXh9SzPItNJS5kL6RmR6caGf4r3YH2M"
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjA2MTMyZDQ5YWJiOTE4OGY2ZGRhODc1M2NkN2Q0YTM0MWQ3NSIsInVzZXJJZCI6ImNjZWJlOWNlLWM1MzItNDVmNS1hNzlhLWZkZDRjMzAxYTljOCIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX3NzaSIsImttc0lkIjoiaHM6ZG9jOjFfZmhkbl9yXzBpbXJkZ3p0ZnJxaWRrdWdvXzhhbi1jdC16ZnN5Nmo3bnUiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtZjMwMjdhZCIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6MDYxMzJkNDlhYmI5MTg4ZjZkZGE4NzUzY2Q3ZDRhMzQxZDc1IiwiYWNjZXNzTGlzdCI6WyJBTEwiXSwiaWF0IjoxNzExNDQ0MjY1LCJleHAiOjE4NjY5NjQyNjV9.gF5TD5F2XQ-Wz7GId8W5qb4wzxZrG9brYZ6_ztojwEQ"
             //// ----------------------------------------------------------------
 
             const presentationRequest = {
