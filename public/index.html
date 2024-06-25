@@ -99,24 +99,21 @@
     </div>
 
     <script>
-        // const widgetBaseUrl = "https://hypersign-kyc-widget.netlify.app"
-        const widgetBaseUrl = "http://localhost:4999"
-        const kycTenantUrl = "http://ent-4c71874.localhost:3001"
-        // const kycTenantUrl = 'https://ent-4c71874.api.cavach.hypersign.id'
+        const widgetBaseUrl = "https://hypersign-kyc-widget.netlify.app"
+        // const widgetBaseUrl = "https://verify.hypersign.id/"
+        // const widgetBaseUrl = "http://localhost:4999/"
+        // const kycTenantUrl = "http://ent-4c71874.localhost:3001"
+        const kycTenantUrl = 'https://ent-b3abc92.api.cavach.hypersign.id'
         const consentAPIpath = '/api/v1/e-kyc/verification/user-consent'
+        const kycSessionPath = '/api/v1/e-kyc/verification/session'
         let idTokenGbl = ""
 
         window.addEventListener('message', function (event) {
-            console.log('Inside message', event.data)
-
             if (event.origin === widgetBaseUrl) {
                 const data = JSON.parse(event.data)
                 // Handle the message data sent from the popup
                 console.log('Received message from popup:', event.data);
-
-
                 if (data.status === 'success') {
-
                     idTokenGbl = data.idToken
                     fetchUserData()
                     const userDataDiv = document.getElementById('userData')
@@ -131,116 +128,67 @@
                 }
                 else if (data.status === 'fail') {
                     alertDiv.innerHTML = `
-        <div class="alert alert-primary" role="alert">
-            Failed to verify the user, please try again!
-        </div>
-        `
+                        <div class="alert alert-primary" role="alert">
+                            Failed to verify the user, please try again!
+                        </div>
+                    `
                 }
                 const result = document.getElementById('result')
-                result.innerHTML = `
-                <h2><i class="bi bi-check"></i> You are verified!</h2>
-                `
+                result.innerHTML = `<h2><i class="bi bi-check"></i> You are verified!</h2>`
                 document.getElementById('load2').style.display = 'none'
                 document.getElementById('kycbuttonContainer').style.backgroundColor = '#00800030'
             }
         });
-        $('.btn').on('click', function () {
+        $('.btn').on('click', async function () {
             var $this = $(this);
             $this.button('loading');
             const button = document.getElementById('load2')
-            button.innerHTML = `
-        <span class="spinner-grow spinner-grow-sm"></span> Verifiying User...
-        `
-            const url = getWidgetUrl()
-            console.log(url)
+            button.innerHTML = `<span class="spinner-grow spinner-grow-sm"></span> Verifiying User...`
+            const url = await getWidgetUrl()
             var popup = window.open(url, 'Popup Window', 'width=850,height=870');
         });
 
         function getKYCAccessToken() {
-            return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjEzZjcwZmFmN2Y1YzVkMDM1MjBiNzExODExMzZiNTk1ZjdjNiIsInVzZXJJZCI6ImNjZWJlOWNlLWM1MzItNDVmNS1hNzlhLWZkZDRjMzAxYTljOCIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX2t5YyIsImttc0lkIjoiaHM6ZG9jOnA2bWwyNGVrLTE4aWljNm05cXhpdmJta2llX3ppbmM4amtua3RrZ3l0dGkiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtNGM3MTg3NCIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6MTNmNzBmYWY3ZjVjNWQwMzUyMGI3MTE4MTEzNmI1OTVmN2M2IiwiYWNjZXNzTGlzdCI6WyJBTEwiLCJSRUFEX1VTRVJfQ09OU0VOVCIsIldSSVRFX1VTRVJfQ09OU0VOVCIsIldSSVRFX1BBU1NJVkVfTElWRUxJTkVTUyIsIldSSVRFX0RPQ19PQ1IiXSwiaWF0IjoxNzExNDQ0MjMxLCJleHAiOjE4NjY5NjQyMzF9.mlOWBErMXVak9QGtmPnlIZdmlW1NBIbpJuTgIJ9b8kI"
+            return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImIzZjA1MDk3ZTI4YWZlODM2MDRlY2ZmZGM3N2UxNTBhYWFlOCIsInVzZXJJZCI6ImMyMjM4NDlmLTYyMTUtNGQ1OS1hZmI0LWFjYTYxODAyZDUxNyIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX2t5YyIsImttc0lkIjoiaHM6ZG9jOmItZXlnenluZjNkdmd4NGR2d2ttMWIzamE1M19kd2Nxd2lrYjN4eWU3MzQiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtYjNhYmM5MiIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6YjNmMDUwOTdlMjhhZmU4MzYwNGVjZmZkYzc3ZTE1MGFhYWU4IiwiYWNjZXNzTGlzdCI6WyJBTEwiXSwiaWF0IjoxNzE4OTcxOTkzLCJleHAiOjE3MjQxNTU5OTN9.jXcL7wr6bPc3J0e9OaV-DEz-wfEOb0o6-Ai2d0FYuGY"
         }
 
-        function getWidgetUrl() {
-            // Data
-            //// PR
-            const issuerDID = "did:hid:testnet:29622580-9b41-4561-982c-97280b2ebc50"
-            const issuerDIDVerificationMethod = "did:hid:testnet:29622580-9b41-4561-982c-97280b2ebc50#key-1"
-            const reason = "The Verifier need these credentials to allow you access"
+        async function fetchNewKYCSession() {
+            try {
+                const idToken = idTokenGbl
+                const url = `${kycTenantUrl}${kycSessionPath}`
+                const headers = {
+                    'Authorization': 'Bearer ' + getKYCAccessToken(),
+                    'content-type': 'application/json',
+                }
+                const resp = await fetch(url, {
+                    method: 'POST',
+                    headers
+                })
+                const json = await resp.json()
+                console.log(json)
+                return json;
+            } catch (e) {
+                console.error(e)
+            }
+        }
 
+        async function getWidgetUrl() {
             //// Access tokens
             const cavachAccessToken = getKYCAccessToken()
 
             const ssiAccessToken =
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjA2MTMyZDQ5YWJiOTE4OGY2ZGRhODc1M2NkN2Q0YTM0MWQ3NSIsInVzZXJJZCI6ImNjZWJlOWNlLWM1MzItNDVmNS1hNzlhLWZkZDRjMzAxYTljOCIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX3NzaSIsImttc0lkIjoiaHM6ZG9jOjFfZmhkbl9yXzBpbXJkZ3p0ZnJxaWRrdWdvXzhhbi1jdC16ZnN5Nmo3bnUiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtZjMwMjdhZCIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6MDYxMzJkNDlhYmI5MTg4ZjZkZGE4NzUzY2Q3ZDRhMzQxZDc1IiwiYWNjZXNzTGlzdCI6WyJBTEwiXSwiaWF0IjoxNzExNDQ0MjY1LCJleHAiOjE4NjY5NjQyNjV9.gF5TD5F2XQ-Wz7GId8W5qb4wzxZrG9brYZ6_ztojwEQ"
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImVkYTM4MjM4MjYxOTFiMmU5YmEzNDRhY2JjNTQ4ZGE1ZjRlMCIsInVzZXJJZCI6ImMyMjM4NDlmLTYyMTUtNGQ1OS1hZmI0LWFjYTYxODAyZDUxNyIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX3NzaSIsImttc0lkIjoiaHM6ZG9jOnZycWN5amZodWV1anNqZGs3cF8wNDhrbHNtNHAtYzF1d25wdWhfdmlkbDgiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtMGJjZTU1YSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6ZWRhMzgyMzgyNjE5MWIyZTliYTM0NGFjYmM1NDhkYTVmNGUwIiwiYWNjZXNzTGlzdCI6WyJBTEwiXSwiaWF0IjoxNzE4OTcxOTYxLCJleHAiOjE3MjQxNTU5NjF9.DyQSUaTApRRijg-C865rvektCDdT34ij1KRC8tK24dY"
             //// ----------------------------------------------------------------
 
-            const presentationRequest = {
-                "query": [
-                    {
-                        "type": "QueryByExample",
-                        "credentialQuery": [
-                            {
-                                "example": {
-                                    "type": "PersonhoodCredential",
-                                    "credentialSchema": {
-                                        "id": "sch:hid:testnet:z6Mkvtd73dDgg7HU8wLCmXbe2RAHPAU1Ex1VUXCFtPV7u36i:1.0"
-                                    }
-                                },
-                                "trustedIssuer": [
-                                    {
-                                        "required": true,
-                                        "issuer": "did:hid:testnet:zCyAz2wfKjAaWE4FW75KxpZh2wuo9kRAUZyV2xEe93cKr"
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "type": "QueryByExample",
-                        "credentialQuery": [
-                            {
-                                "example": {
-                                    "type": "PassportCredential",
-                                    "credentialSchema": {
-                                        "id": "sch:hid:testnet:z6MkgMXXQL7YD7BufNLbjrwueoj4nmih9xujJ6aozJDmzFWx:1.0"
-                                    }
-                                },
-                                "trustedIssuer": [
-                                    {
-                                        "required": true,
-                                        "issuer": "did:hid:testnet:zCyAz2wfKjAaWE4FW75KxpZh2wuo9kRAUZyV2xEe93cKr"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ],
-                "reason": reason,
-                "issuerDID": issuerDID,
-                "issuerDIDVerificationMethod": issuerDIDVerificationMethod,
-                "domain": window.location.href,
-                "logoUrl": "https://i.ibb.co/xmxv8kw/Screenshot-2024-03-12-at-3-18-37-PM.png"
+            const { sessionId } = await fetchNewKYCSession()
+            if (sessionId) {
+                const finalUrl = `${widgetBaseUrl}?kycAccessToken=${cavachAccessToken}&ssiAccessToken=${ssiAccessToken}&sessionId=${sessionId}`
+                return finalUrl
             }
-
-            const presentationRequestStr = JSON.stringify(presentationRequest)
-            console.log(presentationRequestStr)
-            const prBase64 = btoa(presentationRequestStr)
-            const chainId = 'cosmos:nibiru:nibiru-localnet-0' // 'cosmos:comdex:test'
-            const contractAddress = 'nibi14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9ssa9gcs' // 
-            // const finalUrl =
-            //     `${widgetBaseUrl}?kycAccessToken=${cavachAccessToken}&ssiAccessToken=${ssiAccessToken}&pr=${prBase64}&chainId=${chainId}&contractAddress=${contractAddress}`
-
-            const onchainConfigId = '662e26ab9d8bd3328589b5e7'
-
-            const finalUrl =
-                `${widgetBaseUrl}?kycAccessToken=${cavachAccessToken}&ssiAccessToken=${ssiAccessToken}&pr=${prBase64}&onChainConfigId=${onchainConfigId}`
-            return finalUrl
-
         }
 
         async function fetchUserData() {
             try {
-
                 const idToken = idTokenGbl
                 const url = `${kycTenantUrl}${consentAPIpath}?idToken=${idToken}`
                 const headers = {
