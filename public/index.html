@@ -108,7 +108,7 @@
         let idTokenGbl = ""
 
         window.addEventListener('message', function (event) {
-            if (event.origin === widgetBaseUrl) {
+            if ((new URL(event.origin)).origin === (new URL(widgetBaseUrl)).origin) {
                 const data = JSON.parse(event.data)
                 // Handle the message data sent from the popup
                 console.log('Received message from popup:', event.data);
