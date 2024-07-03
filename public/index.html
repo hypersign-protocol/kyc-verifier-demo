@@ -99,11 +99,10 @@
     </div>
 
     <script>
-        const widgetBaseUrl = "https://hypersign-kyc-widget.netlify.app"
-        // const widgetBaseUrl = "https://verify.hypersign.id/"
+        const widgetBaseUrl = "https://verify.hypersign.id/"
         // const widgetBaseUrl = "http://localhost:4999/"
+        const kycTenantUrl = "https://ent-4c71874.api.cavach.hypersign.id"
         // const kycTenantUrl = "http://ent-4c71874.localhost:3001"
-        const kycTenantUrl = 'https://ent-b3abc92.api.cavach.hypersign.id'
         const consentAPIpath = '/api/v1/e-kyc/verification/user-consent'
         const kycSessionPath = '/api/v1/e-kyc/verification/session'
         let idTokenGbl = ""
@@ -149,7 +148,11 @@
         });
 
         function getKYCAccessToken() {
-            return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImIzZjA1MDk3ZTI4YWZlODM2MDRlY2ZmZGM3N2UxNTBhYWFlOCIsInVzZXJJZCI6ImMyMjM4NDlmLTYyMTUtNGQ1OS1hZmI0LWFjYTYxODAyZDUxNyIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX2t5YyIsImttc0lkIjoiaHM6ZG9jOmItZXlnenluZjNkdmd4NGR2d2ttMWIzamE1M19kd2Nxd2lrYjN4eWU3MzQiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtYjNhYmM5MiIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6YjNmMDUwOTdlMjhhZmU4MzYwNGVjZmZkYzc3ZTE1MGFhYWU4IiwiYWNjZXNzTGlzdCI6WyJBTEwiXSwiaWF0IjoxNzE4OTcxOTkzLCJleHAiOjE3MjQxNTU5OTN9.jXcL7wr6bPc3J0e9OaV-DEz-wfEOb0o6-Ai2d0FYuGY"
+            // Dev: 
+            return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjEzZjcwZmFmN2Y1YzVkMDM1MjBiNzExODExMzZiNTk1ZjdjNiIsInVzZXJJZCI6ImNjZWJlOWNlLWM1MzItNDVmNS1hNzlhLWZkZDRjMzAxYTljOCIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX2t5YyIsImttc0lkIjoiaHM6ZG9jOnA2bWwyNGVrLTE4aWljNm05cXhpdmJta2llX3ppbmM4amtua3RrZ3l0dGkiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtNGM3MTg3NCIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6MTNmNzBmYWY3ZjVjNWQwMzUyMGI3MTE4MTEzNmI1OTVmN2M2IiwiYWNjZXNzTGlzdCI6WyJBTEwiLCJSRUFEX1VTRVJfQ09OU0VOVCIsIldSSVRFX1VTRVJfQ09OU0VOVCIsIldSSVRFX1BBU1NJVkVfTElWRUxJTkVTUyIsIldSSVRFX0RPQ19PQ1IiXSwiZW52IjoiZGV2IiwiaXNzdWVyRGlkIjoiZGlkOmhpZDp0ZXN0bmV0OjI5NjIyNTgwLTliNDEtNDU2MS05ODJjLTk3MjgwYjJlYmM1MCIsImlhdCI6MTcyMDAwODIzMCwiZXhwIjozMjc1MjA4MjMwfQ.PB92eke_EGF9Wv32ipO7j9CMqvnDyk_hzEnhmBXgmZM"
+
+            // Prod: 
+            // return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImIzZjA1MDk3ZTI4YWZlODM2MDRlY2ZmZGM3N2UxNTBhYWFlOCIsInVzZXJJZCI6ImMyMjM4NDlmLTYyMTUtNGQ1OS1hZmI0LWFjYTYxODAyZDUxNyIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX2t5YyIsImttc0lkIjoiaHM6ZG9jOmItZXlnenluZjNkdmd4NGR2d2ttMWIzamE1M19kd2Nxd2lrYjN4eWU3MzQiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtYjNhYmM5MiIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6YjNmMDUwOTdlMjhhZmU4MzYwNGVjZmZkYzc3ZTE1MGFhYWU4IiwiYWNjZXNzTGlzdCI6WyJBTEwiXSwiZW52IjoicHJvZCIsImlzc3VlckRpZCI6ImRpZDpoaWQ6dGVzdG5ldDozZDExZTQwZi0yMjUwLTQ4NDYtYmQyMy1iZmI1OGNmNGVlYTUiLCJpYXQiOjE3MjAwMDk5NjUsImV4cCI6MzI3NTIwOTk2NX0.Dws0O4YAyKv37A0NI0N_VDQm2s3a0dzufynz6AABElM"
         }
 
         async function fetchNewKYCSession() {
@@ -166,23 +169,30 @@
                 })
                 const json = await resp.json()
                 console.log(json)
-                return json;
+                return json.data;
             } catch (e) {
                 console.error(e)
             }
         }
 
         async function getWidgetUrl() {
-            //// Access tokens
             const cavachAccessToken = getKYCAccessToken()
 
-            const ssiAccessToken =
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImVkYTM4MjM4MjYxOTFiMmU5YmEzNDRhY2JjNTQ4ZGE1ZjRlMCIsInVzZXJJZCI6ImMyMjM4NDlmLTYyMTUtNGQ1OS1hZmI0LWFjYTYxODAyZDUxNyIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX3NzaSIsImttc0lkIjoiaHM6ZG9jOnZycWN5amZodWV1anNqZGs3cF8wNDhrbHNtNHAtYzF1d25wdWhfdmlkbDgiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtMGJjZTU1YSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6ZWRhMzgyMzgyNjE5MWIyZTliYTM0NGFjYmM1NDhkYTVmNGUwIiwiYWNjZXNzTGlzdCI6WyJBTEwiXSwiaWF0IjoxNzE4OTcxOTYxLCJleHAiOjE3MjQxNTU5NjF9.DyQSUaTApRRijg-C865rvektCDdT34ij1KRC8tK24dY"
-            //// ----------------------------------------------------------------
+            //// mydefi
+            const ssiAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjA2MTMyZDQ5YWJiOTE4OGY2ZGRhODc1M2NkN2Q0YTM0MWQ3NSIsInVzZXJJZCI6ImNjZWJlOWNlLWM1MzItNDVmNS1hNzlhLWZkZDRjMzAxYTljOCIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX3NzaSIsImttc0lkIjoiaHM6ZG9jOjFfZmhkbl9yXzBpbXJkZ3p0ZnJxaWRrdWdvXzhhbi1jdC16ZnN5Nmo3bnUiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtZjMwMjdhZCIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6MDYxMzJkNDlhYmI5MTg4ZjZkZGE4NzUzY2Q3ZDRhMzQxZDc1IiwiYWNjZXNzTGlzdCI6WyJBTEwiXSwiZW52IjoiZGV2IiwiaWF0IjoxNzIwMDA4MzA4LCJleHAiOjMyNzUyMDgzMDh9.25MCz6da-Vw5DZvSAlsof91feOsgNY9wqnVfxNFgjcM"
+
+            //// mypersonal
+            // const ssiAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImVkYTM4MjM4MjYxOTFiMmU5YmEzNDRhY2JjNTQ4ZGE1ZjRlMCIsInVzZXJJZCI6ImMyMjM4NDlmLTYyMTUtNGQ1OS1hZmI0LWFjYTYxODAyZDUxNyIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX3NzaSIsImttc0lkIjoiaHM6ZG9jOnZycWN5amZodWV1anNqZGs3cF8wNDhrbHNtNHAtYzF1d25wdWhfdmlkbDgiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtMGJjZTU1YSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6ZWRhMzgyMzgyNjE5MWIyZTliYTM0NGFjYmM1NDhkYTVmNGUwIiwiYWNjZXNzTGlzdCI6WyJBTEwiXSwiZW52IjoiZGV2IiwiaWF0IjoxNzIwMDA5ODk3LCJleHAiOjMyNzUyMDk4OTd9.cHNGaJ502o-5_0iXUKm7PKOk-9w6e9W0xBEjKuxNe-Y"
 
             const { sessionId } = await fetchNewKYCSession()
             if (sessionId) {
                 const finalUrl = `${widgetBaseUrl}?kycAccessToken=${cavachAccessToken}&ssiAccessToken=${ssiAccessToken}&sessionId=${sessionId}`
+                console.log(finalUrl)
+                return finalUrl
+            } else {
+
+                const finalUrl = `${widgetBaseUrl}?kycAccessToken=${cavachAccessToken}&ssiAccessToken=${ssiAccessToken}`
+                console.log(finalUrl)
                 return finalUrl
             }
         }
