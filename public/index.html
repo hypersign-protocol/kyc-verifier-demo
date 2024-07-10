@@ -124,18 +124,26 @@
                             ${data.idToken}
                         </p>
                     `
+
+                    const result = document.getElementById('result')
+                    result.innerHTML = `<h2><i class="bi bi-check"></i> You are verified!</h2>`
+                    document.getElementById('load2').style.display = 'block'
+                    document.getElementById('kycbuttonContainer').style.backgroundColor = '#00800030'
                 }
                 else if (data.status === 'fail') {
-                    alertDiv.innerHTML = `
-                        <div class="alert alert-primary" role="alert">
+                    const errorDom = document.getElementById('userData')
+                    errorDom.innerHTML = `
+                        <div class="alert alert-danger" role="alert">
                             Failed to verify the user, please try again!
                         </div>
                     `
+
+                    // const result = document.getElementById('result')
+                    // result.innerHTML = `<h2><i class="bi bi-cross"></i> Sorry, you are not verified!</h2>`
+                    const button = document.getElementById('load2')
+                    button.innerHTML = `<i class="bi bi-person-bounding-box"></i> VERIFY YOUR IDENTITY`
                 }
-                const result = document.getElementById('result')
-                result.innerHTML = `<h2><i class="bi bi-check"></i> You are verified!</h2>`
-                document.getElementById('load2').style.display = 'none'
-                document.getElementById('kycbuttonContainer').style.backgroundColor = '#00800030'
+
             }
         });
         $('.btn').on('click', async function () {
@@ -143,6 +151,9 @@
             $this.button('loading');
             const button = document.getElementById('load2')
             button.innerHTML = `<span class="spinner-grow spinner-grow-sm"></span> Verifiying User...`
+            const userData = document.getElementById('userData')
+            userData.innerHTML = ``
+
             const url = await getWidgetUrl()
             var popup = window.open(url, 'Popup Window', 'width=850,height=870');
         });
