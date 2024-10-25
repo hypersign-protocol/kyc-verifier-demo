@@ -94,10 +94,10 @@
         <div id="userData" class="userData"></div>
     </div>
 
-    <div class="idTokenContainer">
+    <!-- <div class="idTokenContainer">
         <pre id="actualData" class="userData" style="    max-height: 400px;overflow-y: scroll;"></pre>
-    </div>
-
+    </div> -->
+    <!-- 8c840f251a082dd559769ab8c419a.91ad60fb0337341f913268d91fa3b40a804147703d974afbc536852e3b48c8a676f607307b4dacb4beb26326d5da234ca -->
     <script>
         const widgetBaseUrl = "https://verify.hypersign.id/"
         // const widgetBaseUrl = "http://localhost:4999/"
@@ -115,15 +115,15 @@
                 if (data.status === 'success') {
                     idTokenGbl = data.idToken
                     fetchUserData()
-                    const userDataDiv = document.getElementById('userData')
-                    userDataDiv.innerHTML = `
-                        <p>
-                            idToken:
-                        </p>    
-                        <p>
-                            ${data.idToken}
-                        </p>
-                    `
+                    // const userDataDiv = document.getElementById('userData')
+                    // userDataDiv.innerHTML = `
+                    //     <p>
+                    //         idToken:
+                    //     </p>    
+                    //     <p>
+                    //         ${data.idToken}
+                    //     </p>
+                    // `
 
                     const result = document.getElementById('result')
                     result.innerHTML = `<h2><i class="bi bi-check"></i> You are verified!</h2>`
@@ -164,7 +164,7 @@
 
 
             // // Prod: 
-            return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjEzZjcwZmFmN2Y1YzVkMDM1MjBiNzExODExMzZiNTk1ZjdjNiIsInVzZXJJZCI6ImNjZWJlOWNlLWM1MzItNDVmNS1hNzlhLWZkZDRjMzAxYTljOCIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX2t5YyIsImttc0lkIjoiaHM6ZG9jOm15cWJldHlwNnctazB6anlkY3liYXZvbncxNGZnb2UzN2RhcDR5Y2NpbzAiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtNGM3MTg3NCIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6NTQ3NzQ5YjI4MmY2Mjg3ZDdjOGE2OTYwOWU0MTk0YWY5NjRjIiwiYWNjZXNzTGlzdCI6WyJBTEwiLCJSRUFEX1VTRVJfQ09OU0VOVCIsIldSSVRFX1VTRVJfQ09OU0VOVCIsIldSSVRFX1BBU1NJVkVfTElWRUxJTkVTUyIsIldSSVRFX0RPQ19PQ1IiXSwiZW52IjoiZGV2IiwiYXBwTmFtZSI6Ik15RGVmaSIsImlzc3VlckRpZCI6ImRpZDpoaWQ6dGVzdG5ldDozNjM1NmI3Ny0zMzVmLTQwZmYtYTA2OC05ZjI2MWVlMWNiMTQiLCJkZXBlbmRlbnRTZXJ2aWNlcyI6WyJkYzhlODFjMzRkYjg0OWI3NDJhYzIxZTVhOWNmYmEzMDU1MDIiXSwiaWF0IjoxNzIyNjE3MTczLCJleHAiOjIyNDI3ODExNzN9.b9vCnd3Be-Phk3iGa7Nqo9plD55ZQ3rQxoMXPDjyGqE"
+            return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjEzZjcwZmFmN2Y1YzVkMDM1MjBiNzExODExMzZiNTk1ZjdjNiIsInVzZXJJZCI6ImNjZWJlOWNlLWM1MzItNDVmNS1hNzlhLWZkZDRjMzAxYTljOCIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX2t5YyIsImttc0lkIjoiaHM6ZG9jOm15cWJldHlwNnctazB6anlkY3liYXZvbncxNGZnb2UzN2RhcDR5Y2NpbzAiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiIsImh0dHBzOi8vZW50aXR5LmRhc2hib2FyZC5oeXBlcnNpZ24uaWQiLCJodHRwczovL3ZlcmlmeS5oeXBlcnNpZ24uaWQiXSwic3ViZG9tYWluIjoiZW50LTRjNzE4NzQiLCJlZHZJZCI6ImhzOmRldmVsb3Blci1kYXNoYm9hcmQ6YXBwOjU0Nzc0OWIyODJmNjI4N2Q3YzhhNjk2MDllNDE5NGFmOTY0YyIsImFjY2Vzc0xpc3QiOlsiQUxMIiwiUkVBRF9VU0VSX0NPTlNFTlQiLCJXUklURV9VU0VSX0NPTlNFTlQiLCJXUklURV9QQVNTSVZFX0xJVkVMSU5FU1MiLCJXUklURV9ET0NfT0NSIl0sImVudiI6ImRldiIsImFwcE5hbWUiOiJNeURlZmkiLCJpc3N1ZXJEaWQiOiJkaWQ6aGlkOnRlc3RuZXQ6MDcwNmE5MTctMTVjNy00MWZkLTliYTItY2UxYzNlM2VkNDQwIiwiaXNzdWVyVmVyaWZpY2F0aW9uTWV0aG9kSWQiOiJkaWQ6aGlkOnRlc3RuZXQ6MDcwNmE5MTctMTVjNy00MWZkLTliYTItY2UxYzNlM2VkNDQwI2tleS0yIiwiZGVwZW5kZW50U2VydmljZXMiOlsiZGM4ZTgxYzM0ZGI4NDliNzQyYWMyMWU1YTljZmJhMzA1NTAyIl0sImlhdCI6MTcyOTc0ODk4NSwiZXhwIjoyMDg5NzQ4OTg1fQ.MDKxpqF8h0r5LMH2d9MPkL6aa6zbtwxSYW3M1YPFxaQ"
         }
 
         async function fetchNewKYCSession() {
