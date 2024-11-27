@@ -149,17 +149,6 @@
         </button>
     </nav>
 
-    <div class="kycbuttonContainer" id="kycbuttonContainer">
-        <span>
-            <button type="button" class="btn btn-primary btn-lg" id="load2" disabled>
-                <i class="bi bi-person-bounding-box"></i> VERIFY YOUR IDENTITY
-            </button>
-            <span id="result">
-
-            </span>
-        </span>
-    </div>
-
     <div class="container" id="blockContainer">
         <h1 class="text-center my-5">Select Blockchain</h1>
 
@@ -181,6 +170,16 @@
             </div>                    
         </div>        
     </div>
+    <div class="kycbuttonContainer" id="kycbuttonContainer">
+        <span>
+            <button type="button" class="btn btn-primary btn-lg" id="load2">
+                <i class="bi bi-person-bounding-box"></i> VERIFY YOUR IDENTITY
+            </button>
+            <span id="result">
+
+            </span>
+        </span>
+    </div>
     <script>
         const widgetBaseUrl = "https://verify.hypersign.id/"        
         const consentAPIpath = '/api/v1/e-kyc/verification/user-consent'
@@ -188,7 +187,9 @@
         let idTokenGbl = ""
         let chainInfo = null
         const tiles = document.querySelectorAll('.tile');
-        const verifyButton = document.getElementById('load2');
+        const buttonContainer = document.getElementById('kycbuttonContainer'); 
+        const blockchainContainer = document.getElementById('blockContainer')
+        buttonContainer.style.display = 'none'      
         let selectedTile = null;        
         let tileName = null
         // Add click event to each tile
@@ -204,7 +205,7 @@
                 selectedTile = tile;
 
                 // Enable the button
-                verifyButton.disabled = false;
+                buttonContainer.style.display = 'flex';
             });
         });
 
@@ -217,9 +218,8 @@
                     const result = document.getElementById('result')
                     result.innerHTML = `<h2><i class="bi bi-check"></i> You are verified!</h2>`
                     document.getElementById('load2').style.display = 'none'
-                    document.getElementById('kycbuttonContainer').style.backgroundColor = '#00800030'
-                    const blockchainContainer = document.getElementById('blockContainer');
                     blockchainContainer.style.display = 'none'
+                    document.getElementById('kycbuttonContainer').style.backgroundColor = '#00800030'                    
                 }
                 else if (data.status === 'fail') {
                     const errorDom = document.getElementById('userData')
