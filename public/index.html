@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-
+    <script src="../public/chain.json"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
 
     <style>
@@ -64,6 +64,75 @@
             margin-top: 2%;
             border-radius: 20px;
         }
+        .tile-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .tile {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            background-color: #f8f9fa;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .tile:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .tile.selected {
+            background-color: #007bff;
+            color: #fff;
+            border-color: #0056b3;
+            transform: translateY(-5px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .tile.selected .tile-checkmark {
+            display: block;
+        }
+
+        .tile-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .tile-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .tile-subtitle {
+            font-size: 14px;
+        }
+
+        .tile-checkmark {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            color: #28a745;
+            display: none;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
     </style>
 </head>
 
@@ -80,6 +149,27 @@
         </button>
     </nav>
 
+    <div class="container" id="blockContainer">
+        <h1 class="text-center my-5">Select Blockchain</h1>
+
+        <div class="tile-container" id="tile-container">
+            <div class="tile" data-tile="diamante">
+                <div class="tile-icon"><img src="./assets/Diamante_logo.png" alt="" height="70px" width="70px"></div>
+                <div class="tile-title">Diamante</div>                
+                <i class="bi bi-check-circle-fill tile-checkmark"></i>
+            </div>
+            <div class="tile" data-tile="osmosis">
+                <div class="tile-icon"><img src="https://app.osmosis.zone/tokens/generated/osmo.svg" alt="" height="70px" width="70px"></div>
+                <div class="tile-title">Osmosis</div>                
+                <i class="bi bi-check-circle-fill tile-checkmark"></i>
+            </div> 
+            <div class="tile" data-tile="nibiru">
+                <div class="tile-icon"><img src="https://nibiru.fi/_astro/nibi-logomark-profile-pic.DoOUhpoa.svg" alt="" height="70px" width="70px"></div>
+                <div class="tile-title">Nibiru Chain</div>
+                <i class="bi bi-check-circle-fill tile-checkmark"></i>
+            </div>                    
+        </div>        
+    </div>
     <div class="kycbuttonContainer" id="kycbuttonContainer">
         <span>
             <button type="button" class="btn btn-primary btn-lg" id="load2">
@@ -90,22 +180,34 @@
             </span>
         </span>
     </div>
-    <div class="idTokenContainer">
-        <div id="userData" class="userData"></div>
-    </div>
-
-    <!-- <div class="idTokenContainer">
-        <pre id="actualData" class="userData" style="    max-height: 400px;overflow-y: scroll;"></pre>
-    </div> -->
-    <!-- 8c840f251a082dd559769ab8c419a.91ad60fb0337341f913268d91fa3b40a804147703d974afbc536852e3b48c8a676f607307b4dacb4beb26326d5da234ca -->
     <script>
-        const widgetBaseUrl = "https://verify.hypersign.id/"
-        // const widgetBaseUrl = "http://localhost:4999/"
-        const kycTenantUrl = "https://ent-4c71874.api.cavach.hypersign.id"
-        // const kycTenantUrl = "http://ent-4c71874.localhost:3001"
+        const widgetBaseUrl = "https://verify.hypersign.id/"        
         const consentAPIpath = '/api/v1/e-kyc/verification/user-consent'
         const kycSessionPath = '/api/v1/e-kyc/verification/session'
         let idTokenGbl = ""
+        let chainInfo = null
+        const tiles = document.querySelectorAll('.tile');
+        const buttonContainer = document.getElementById('kycbuttonContainer'); 
+        const blockchainContainer = document.getElementById('blockContainer')
+        buttonContainer.style.display = 'none'      
+        let selectedTile = null;        
+        let tileName = null
+        // Add click event to each tile
+        tiles.forEach(tile => {
+            tile.addEventListener('click', () => {
+                // Deselect previously selected tile
+                if (selectedTile) {
+                    selectedTile.classList.remove('selected');
+                }
+
+                // Select the current tile
+                tile.classList.add('selected');
+                selectedTile = tile;
+
+                // Enable the button
+                buttonContainer.style.display = 'flex';
+            });
+        });
 
         window.addEventListener('message', function (event) {
             if ((new URL(event.origin)).origin === (new URL(widgetBaseUrl)).origin) {
@@ -113,22 +215,11 @@
                 // Handle the message data sent from the popup
                 console.log('Received message from popup:', event.data);
                 if (data.status === 'success') {
-                    idTokenGbl = data.idToken
-                    fetchUserData()
-                    // const userDataDiv = document.getElementById('userData')
-                    // userDataDiv.innerHTML = `
-                    //     <p>
-                    //         idToken:
-                    //     </p>    
-                    //     <p>
-                    //         ${data.idToken}
-                    //     </p>
-                    // `
-
                     const result = document.getElementById('result')
                     result.innerHTML = `<h2><i class="bi bi-check"></i> You are verified!</h2>`
                     document.getElementById('load2').style.display = 'none'
-                    document.getElementById('kycbuttonContainer').style.backgroundColor = '#00800030'
+                    blockchainContainer.style.display = 'none'
+                    document.getElementById('kycbuttonContainer').style.backgroundColor = '#00800030'                    
                 }
                 else if (data.status === 'fail') {
                     const errorDom = document.getElementById('userData')
@@ -137,9 +228,6 @@
                             Failed to verify the user, please try again!
                         </div>
                     `
-
-                    // const result = document.getElementById('result')
-                    // result.innerHTML = `<h2><i class="bi bi-cross"></i> Sorry, you are not verified!</h2>`
                     const button = document.getElementById('load2')
                     button.innerHTML = `<i class="bi bi-person-bounding-box"></i> VERIFY YOUR IDENTITY`
                 }
@@ -152,27 +240,30 @@
             const button = document.getElementById('load2')
             button.innerHTML = `<span class="spinner-grow spinner-grow-sm"></span> Verifiying User...`
             const userData = document.getElementById('userData')
-            userData.innerHTML = ``
-
+            if (selectedTile) {
+                tileName = selectedTile.getAttribute('data-tile');                
+                chainInfo  = await getChainInfo(tileName)   
+                console.log(chainInfo)                            
+            } else{
+                alert("Select the blockchain")
+            }
             const url = await getWidgetUrl()
             var popup = window.open(url, 'Popup Window', 'width=850,height=870');
         });
 
-        function getKYCAccessToken() {
-            //Dev: 
-            // return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjEzZjcwZmFmN2Y1YzVkMDM1MjBiNzExODExMzZiNTk1ZjdjNiIsInVzZXJJZCI6ImNjZWJlOWNlLWM1MzItNDVmNS1hNzlhLWZkZDRjMzAxYTljOCIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX2t5YyIsImttc0lkIjoiaHM6ZG9jOnA2bWwyNGVrLTE4aWljNm05cXhpdmJta2llX3ppbmM4amtua3RrZ3l0dGkiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtNGM3MTg3NCIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6MTNmNzBmYWY3ZjVjNWQwMzUyMGI3MTE4MTEzNmI1OTVmN2M2IiwiYWNjZXNzTGlzdCI6WyJBTEwiLCJSRUFEX1VTRVJfQ09OU0VOVCIsIldSSVRFX1VTRVJfQ09OU0VOVCIsIldSSVRFX1BBU1NJVkVfTElWRUxJTkVTUyIsIldSSVRFX0RPQ19PQ1IiXSwiZW52IjoicHJvZCIsImlzc3VlckRpZCI6ImRpZDpoaWQ6dGVzdG5ldDo0Nzk5YTAyMi0zNTc5LTRjZWYtYmJkZS05YzZlYmYwODY2OTMiLCJkZXBlbmRlbnRTZXJ2aWNlcyI6WyIxZWY1NTE5NThjNzkyYWQ0MDZiNjFkYTFkNjkxZWE1MDRhOTUiXSwiaWF0IjoxNzIwMTYwMjk2LCJleHAiOjMyNzUzNjAyOTZ9.nC7P73cnt7cV8zt88_4YUqbkfoqTkD_1h-QBIAhUrhk"
-
-
-            // // Prod: 
-            return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjEzZjcwZmFmN2Y1YzVkMDM1MjBiNzExODExMzZiNTk1ZjdjNiIsInVzZXJJZCI6ImNjZWJlOWNlLWM1MzItNDVmNS1hNzlhLWZkZDRjMzAxYTljOCIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX2t5YyIsImttc0lkIjoiaHM6ZG9jOm15cWJldHlwNnctazB6anlkY3liYXZvbncxNGZnb2UzN2RhcDR5Y2NpbzAiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiIsImh0dHBzOi8vZW50aXR5LmRhc2hib2FyZC5oeXBlcnNpZ24uaWQiLCJodHRwczovL3ZlcmlmeS5oeXBlcnNpZ24uaWQiXSwic3ViZG9tYWluIjoiZW50LTRjNzE4NzQiLCJlZHZJZCI6ImhzOmRldmVsb3Blci1kYXNoYm9hcmQ6YXBwOjU0Nzc0OWIyODJmNjI4N2Q3YzhhNjk2MDllNDE5NGFmOTY0YyIsImFjY2Vzc0xpc3QiOlsiQUxMIiwiUkVBRF9VU0VSX0NPTlNFTlQiLCJXUklURV9VU0VSX0NPTlNFTlQiLCJXUklURV9QQVNTSVZFX0xJVkVMSU5FU1MiLCJXUklURV9ET0NfT0NSIl0sImVudiI6ImRldiIsImFwcE5hbWUiOiJNeURlZmkiLCJpc3N1ZXJEaWQiOiJkaWQ6aGlkOnRlc3RuZXQ6MDcwNmE5MTctMTVjNy00MWZkLTliYTItY2UxYzNlM2VkNDQwIiwiaXNzdWVyVmVyaWZpY2F0aW9uTWV0aG9kSWQiOiJkaWQ6aGlkOnRlc3RuZXQ6MDcwNmE5MTctMTVjNy00MWZkLTliYTItY2UxYzNlM2VkNDQwI2tleS0yIiwiZGVwZW5kZW50U2VydmljZXMiOlsiZGM4ZTgxYzM0ZGI4NDliNzQyYWMyMWU1YTljZmJhMzA1NTAyIl0sImlhdCI6MTcyOTc0ODk4NSwiZXhwIjoyMDg5NzQ4OTg1fQ.MDKxpqF8h0r5LMH2d9MPkL6aa6zbtwxSYW3M1YPFxaQ"
+        async function getChainInfo(tileName) {
+                const data = await fetch('chain.json')
+                const resp = await data.json()                
+                const rest = resp.find((x)=>(x.name === tileName))
+                return rest
         }
 
         async function fetchNewKYCSession() {
             try {
                 const idToken = idTokenGbl
-                const url = `${kycTenantUrl}${kycSessionPath}`
+                const url = `${chainInfo.teneantUrl}${kycSessionPath}`
                 const headers = {
-                    'Authorization': 'Bearer ' + getKYCAccessToken(),
+                    'Authorization': 'Bearer ' + chainInfo.kycAccessToken,
                     'content-type': 'application/json',
                 }
                 const resp = await fetch(url, {
@@ -188,8 +279,6 @@
         }
 
         async function getWidgetUrl() {
-            const cavachAccessToken = getKYCAccessToken()
-
             //// mydefi
             const ssiAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImRjOGU4MWMzNGRiODQ5Yjc0MmFjMjFlNWE5Y2ZiYTMwNTUwMiIsInVzZXJJZCI6ImNjZWJlOWNlLWM1MzItNDVmNS1hNzlhLWZkZDRjMzAxYTljOCIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX3NzaSIsImttc0lkIjoiaHM6ZG9jOmUwbGtycWZheW5xbWNsMWh4MjVmY3htODdtMnBjemVrbTh2dm5zemFqbGEiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtOGEyZGU1YSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6ZGM4ZTgxYzM0ZGI4NDliNzQyYWMyMWU1YTljZmJhMzA1NTAyIiwiYWNjZXNzTGlzdCI6WyJBTEwiXSwiZW52IjoiZGV2IiwiYXBwTmFtZSI6IlNTSSBTZXJ2aWNlIEZvciBNeURlZmkgKEtZQykiLCJpYXQiOjE3MjI2MTcwOTQsImV4cCI6MjI0Mjc4MTA5NH0.CAWghRvyzm2i7qpN5e4vtJkNilBiNndGBLV-DaWqd0w"
 
@@ -198,34 +287,17 @@
 
             const { sessionId } = await fetchNewKYCSession()
             if (sessionId) {
-                const finalUrl = `${widgetBaseUrl}?kycAccessToken=${cavachAccessToken}&ssiAccessToken=${ssiAccessToken}&sessionId=${sessionId}`
+                const finalUrl = `${widgetBaseUrl}?kycAccessToken=${chainInfo.kycAccessToken}&ssiAccessToken=${ssiAccessToken}&sessionId=${sessionId}`
                 console.log(finalUrl)
                 return finalUrl
             } else {
 
-                const finalUrl = `${widgetBaseUrl}?kycAccessToken=${cavachAccessToken}&ssiAccessToken=${ssiAccessToken}`
+                const finalUrl = `${widgetBaseUrl}?kycAccessToken=${chainInfo.kycAccessToken}&ssiAccessToken=${ssiAccessToken}`
                 console.log(finalUrl)
                 return finalUrl
             }
         }
 
-        async function fetchUserData() {
-            try {
-                const idToken = idTokenGbl
-                const url = `${kycTenantUrl}${consentAPIpath}?idToken=${idToken}`
-                const headers = {
-                    'Authorization': 'Bearer ' + getKYCAccessToken(),
-                    'content-type': 'application/json'
-                }
-                const resp = await fetch(url, {
-                    headers
-                })
-                const json = await resp.json()
-                document.getElementById('actualData').textContent = JSON.stringify(json, undefined, 2)
-            } catch (e) {
-                console.error(e)
-            }
-        }
     </script>
 </body>
 
