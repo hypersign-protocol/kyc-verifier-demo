@@ -64,11 +64,12 @@
             margin-top: 2%;
             border-radius: 20px;
         }
+
         .tile-container {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 20px;
+            gap: 10px;
             margin: 20px 0;
         }
 
@@ -125,7 +126,7 @@
             top: 10px;
             right: 10px;
             font-size: 24px;
-            color: #28a745;
+            color: white;
             display: none;
         }
 
@@ -150,25 +151,28 @@
     </nav>
 
     <div class="container" id="blockContainer">
-        <h1 class="text-center my-5">Select Blockchain</h1>
-
+        <div class="my-1" style="display:flex; justify-content: center;">
+            <span>Select Blockchain</span>
+        </div>
         <div class="tile-container" id="tile-container">
             <div class="tile" data-tile="diamante">
                 <div class="tile-icon"><img src="./assets/Diamante_logo.png" alt="" height="70px" width="70px"></div>
-                <div class="tile-title">Diamante</div>                
+                <div class="tile-title">Diamante</div>
                 <i class="bi bi-check-circle-fill tile-checkmark"></i>
             </div>
             <div class="tile" data-tile="osmosis">
-                <div class="tile-icon"><img src="https://app.osmosis.zone/tokens/generated/osmo.svg" alt="" height="70px" width="70px"></div>
-                <div class="tile-title">Osmosis</div>                
+                <div class="tile-icon"><img src="https://app.osmosis.zone/tokens/generated/osmo.svg" alt=""
+                        height="70px" width="70px"></div>
+                <div class="tile-title">Osmosis</div>
                 <i class="bi bi-check-circle-fill tile-checkmark"></i>
-            </div> 
+            </div>
             <div class="tile" data-tile="nibiru">
-                <div class="tile-icon"><img src="https://nibiru.fi/_astro/nibi-logomark-profile-pic.DoOUhpoa.svg" alt="" height="70px" width="70px"></div>
+                <div class="tile-icon"><img src="https://nibiru.fi/_astro/nibi-logomark-profile-pic.DoOUhpoa.svg" alt=""
+                        height="70px" width="70px"></div>
                 <div class="tile-title">Nibiru Chain</div>
                 <i class="bi bi-check-circle-fill tile-checkmark"></i>
-            </div>                    
-        </div>        
+            </div>
+        </div>
     </div>
     <div class="kycbuttonContainer" id="kycbuttonContainer">
         <span>
@@ -181,16 +185,16 @@
         </span>
     </div>
     <script>
-        const widgetBaseUrl = "https://verify.hypersign.id/"        
+        const widgetBaseUrl = "https://verify.hypersign.id/"
         const consentAPIpath = '/api/v1/e-kyc/verification/user-consent'
         const kycSessionPath = '/api/v1/e-kyc/verification/session'
         let idTokenGbl = ""
         let chainInfo = null
         const tiles = document.querySelectorAll('.tile');
-        const buttonContainer = document.getElementById('kycbuttonContainer'); 
+        const buttonContainer = document.getElementById('kycbuttonContainer');
         const blockchainContainer = document.getElementById('blockContainer')
-        buttonContainer.style.display = 'none'      
-        let selectedTile = null;        
+        buttonContainer.style.display = 'none'
+        let selectedTile = null;
         let tileName = null
         // Add click event to each tile
         tiles.forEach(tile => {
@@ -219,7 +223,7 @@
                     result.innerHTML = `<h2><i class="bi bi-check"></i> You are verified!</h2>`
                     document.getElementById('load2').style.display = 'none'
                     blockchainContainer.style.display = 'none'
-                    document.getElementById('kycbuttonContainer').style.backgroundColor = '#00800030'                    
+                    document.getElementById('kycbuttonContainer').style.backgroundColor = '#00800030'
                 }
                 else if (data.status === 'fail') {
                     const errorDom = document.getElementById('userData')
@@ -241,21 +245,43 @@
             button.innerHTML = `<span class="spinner-grow spinner-grow-sm"></span> Verifiying User...`
             const userData = document.getElementById('userData')
             if (selectedTile) {
-                tileName = selectedTile.getAttribute('data-tile');                
-                chainInfo  = await getChainInfo(tileName)   
-                console.log(chainInfo)                            
-            } else{
+                tileName = selectedTile.getAttribute('data-tile');
+                chainInfo = await getChainInfo(tileName)
+                console.log(chainInfo)
+            } else {
                 alert("Select the blockchain")
             }
             const url = await getWidgetUrl()
-            var popup = window.open(url, 'Popup Window', 'width=850,height=870');
+            // var popup = window.open(url, 'Popup Window', 'width=850,height=870');
+            openMobileWindow(url);
         });
 
+        function openMobileWindow(url) {
+            // Define the dimensions for a typical mobile phone (e.g., iPhone 12)
+            const mobileWidth = 400; // Adjust as needed
+            const mobileHeight = 750; // Adjust as needed
+
+            // Get the screen dimensions
+            const screenWidth = window.screen.width;
+            const screenHeight = window.screen.height;
+
+            // Calculate the position to center the window
+            const left = (screenWidth - mobileWidth) / 2;
+            const top = (screenHeight - mobileHeight) / 2;
+
+            // Open the window
+            window.open(
+                url, // Replace with your desired URL
+                '_blank',
+                `width=${mobileWidth},height=${mobileHeight},left=${left},top=${top},resizable,scrollbars`
+            );
+        }
+
         async function getChainInfo(tileName) {
-                const data = await fetch('chain.json')
-                const resp = await data.json()                
-                const rest = resp.find((x)=>(x.name === tileName))
-                return rest
+            const data = await fetch('chain.json')
+            const resp = await data.json()
+            const rest = resp.find((x) => (x.name === tileName))
+            return rest
         }
 
         async function fetchNewKYCSession() {
@@ -288,12 +314,9 @@
             const { sessionId } = await fetchNewKYCSession()
             if (sessionId) {
                 const finalUrl = `${widgetBaseUrl}?kycAccessToken=${chainInfo.kycAccessToken}&ssiAccessToken=${ssiAccessToken}&sessionId=${sessionId}`
-                console.log(finalUrl)
                 return finalUrl
             } else {
-
                 const finalUrl = `${widgetBaseUrl}?kycAccessToken=${chainInfo.kycAccessToken}&ssiAccessToken=${ssiAccessToken}`
-                console.log(finalUrl)
                 return finalUrl
             }
         }
