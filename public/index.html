@@ -151,28 +151,8 @@
     </nav>
 
     <div class="container" id="blockContainer">
-        <div class="my-1" style="display:flex; justify-content: center;">
-            <span>Select Blockchain</span>
-        </div>
-        <div class="tile-container" id="tile-container">
-            <div class="tile" data-tile="diamante">
-                <div class="tile-icon"><img src="./assets/Diamante_logo.png" alt="" height="70px" width="70px"></div>
-                <div class="tile-title">Diamante</div>
-                <i class="bi bi-check-circle-fill tile-checkmark"></i>
-            </div>
-            <div class="tile" data-tile="osmosis">
-                <div class="tile-icon"><img src="https://app.osmosis.zone/tokens/generated/osmo.svg" alt=""
-                        height="70px" width="70px"></div>
-                <div class="tile-title">Osmosis</div>
-                <i class="bi bi-check-circle-fill tile-checkmark"></i>
-            </div>
-            <div class="tile" data-tile="nibiru">
-                <div class="tile-icon"><img src="https://nibiru.fi/_astro/nibi-logomark-profile-pic.DoOUhpoa.svg" alt=""
-                        height="70px" width="70px"></div>
-                <div class="tile-title">Nibiru Chain</div>
-                <i class="bi bi-check-circle-fill tile-checkmark"></i>
-            </div>
-        </div>
+        <div class="my-1" style="display:flex; justify-content: center;">            
+        </div>        
     </div>
     <div class="kycbuttonContainer" id="kycbuttonContainer">
         <span>
@@ -188,30 +168,13 @@
         const widgetBaseUrl = "https://verify.hypersign.id/"
         const consentAPIpath = '/api/v1/e-kyc/verification/user-consent'
         const kycSessionPath = '/api/v1/e-kyc/verification/session'
-        let idTokenGbl = ""
-        let chainInfo = null
-        const tiles = document.querySelectorAll('.tile');
-        const buttonContainer = document.getElementById('kycbuttonContainer');
-        const blockchainContainer = document.getElementById('blockContainer')
-        buttonContainer.style.display = 'none'
-        let selectedTile = null;
-        let tileName = null
-        // Add click event to each tile
-        tiles.forEach(tile => {
-            tile.addEventListener('click', () => {
-                // Deselect previously selected tile
-                if (selectedTile) {
-                    selectedTile.classList.remove('selected');
-                }
+        const ssiAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImRjOGU4MWMzNGRiODQ5Yjc0MmFjMjFlNWE5Y2ZiYTMwNTUwMiIsInVzZXJJZCI6ImNjZWJlOWNlLWM1MzItNDVmNS1hNzlhLWZkZDRjMzAxYTljOCIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX3NzaSIsImttc0lkIjoiaHM6ZG9jOmUwbGtycWZheW5xbWNsMWh4MjVmY3htODdtMnBjemVrbTh2dm5zemFqbGEiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtOGEyZGU1YSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6ZGM4ZTgxYzM0ZGI4NDliNzQyYWMyMWU1YTljZmJhMzA1NTAyIiwiYWNjZXNzTGlzdCI6WyJBTEwiXSwiZW52IjoiZGV2IiwiYXBwTmFtZSI6IlNTSSBTZXJ2aWNlIEZvciBNeURlZmkgKEtZQykiLCJpYXQiOjE3MjI2MTcwOTQsImV4cCI6MjI0Mjc4MTA5NH0.CAWghRvyzm2i7qpN5e4vtJkNilBiNndGBLV-DaWqd0w"
+        const kycAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjEzZjcwZmFmN2Y1YzVkMDM1MjBiNzExODExMzZiNTk1ZjdjNiIsInVzZXJJZCI6ImNjZWJlOWNlLWM1MzItNDVmNS1hNzlhLWZkZDRjMzAxYTljOCIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX2t5YyIsImttc0lkIjoiaHM6ZG9jOm15cWJldHlwNnctazB6anlkY3liYXZvbncxNGZnb2UzN2RhcDR5Y2NpbzAiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiIsImh0dHBzOi8vZW50aXR5LmRhc2hib2FyZC5oeXBlcnNpZ24uaWQiLCJodHRwczovL3ZlcmlmeS5oeXBlcnNpZ24uaWQiXSwic3ViZG9tYWluIjoiZW50LTRjNzE4NzQiLCJlZHZJZCI6ImhzOmRldmVsb3Blci1kYXNoYm9hcmQ6YXBwOjU0Nzc0OWIyODJmNjI4N2Q3YzhhNjk2MDllNDE5NGFmOTY0YyIsImFjY2Vzc0xpc3QiOlsiQUxMIiwiUkVBRF9VU0VSX0NPTlNFTlQiLCJXUklURV9VU0VSX0NPTlNFTlQiLCJXUklURV9QQVNTSVZFX0xJVkVMSU5FU1MiLCJXUklURV9ET0NfT0NSIl0sImVudiI6ImRldiIsImFwcE5hbWUiOiJOaWJpcnUgKG15RGVmaSkgT25jaGFpbiBLWUMgQXBwIiwiaXNzdWVyRGlkIjoiZGlkOmhpZDp0ZXN0bmV0OjAzNDYwZWU1LWM0ZTQtNGYwNi04NDg3LTU1YTZjMjMwM2JhZiIsImlzc3VlclZlcmlmaWNhdGlvbk1ldGhvZElkIjoiZGlkOmhpZDp0ZXN0bmV0OjAzNDYwZWU1LWM0ZTQtNGYwNi04NDg3LTU1YTZjMjMwM2JhZiNrZXktMiIsImRlcGVuZGVudFNlcnZpY2VzIjpbImRjOGU4MWMzNGRiODQ5Yjc0MmFjMjFlNWE5Y2ZiYTMwNTUwMiJdLCJpYXQiOjE3MzI3NzMzNzIsImV4cCI6MTg5Mjc4MjU3Mn0.C6vKRubBQQDL_TYwp2RE59YgGlcLdifr_jxBsPzSIPw"
+        const teneantUrl = "https://ent-4c71874.api.cavach.hypersign.id"
 
-                // Select the current tile
-                tile.classList.add('selected');
-                selectedTile = tile;
-
-                // Enable the button
-                buttonContainer.style.display = 'flex';
-            });
-        });
+        let idTokenGbl = ""        
+        const buttonContainer = document.getElementById('kycbuttonContainer');        
+        buttonContainer.style.display = 'flex'    
 
         window.addEventListener('message', function (event) {
             if ((new URL(event.origin)).origin === (new URL(widgetBaseUrl)).origin) {
@@ -221,8 +184,7 @@
                 if (data.status === 'success') {
                     const result = document.getElementById('result')
                     result.innerHTML = `<h2><i class="bi bi-check"></i> You are verified!</h2>`
-                    document.getElementById('load2').style.display = 'none'
-                    blockchainContainer.style.display = 'none'
+                    document.getElementById('load2').style.display = 'none'                
                     document.getElementById('kycbuttonContainer').style.backgroundColor = '#00800030'
                 }
                 else if (data.status === 'fail') {
@@ -243,15 +205,9 @@
             $this.button('loading');
             const button = document.getElementById('load2')
             button.innerHTML = `<span class="spinner-grow spinner-grow-sm"></span> Verifiying User...`
-            const userData = document.getElementById('userData')
-            if (selectedTile) {
-                tileName = selectedTile.getAttribute('data-tile');
-                chainInfo = await getChainInfo(tileName)
-                console.log(chainInfo)
-            } else {
-                alert("Select the blockchain")
-            }
+            const userData = document.getElementById('userData')            
             const url = await getWidgetUrl()
+            console.log(url)
             // var popup = window.open(url, 'Popup Window', 'width=850,height=870');
             openMobileWindow(url);
         });
@@ -277,19 +233,12 @@
             );
         }
 
-        async function getChainInfo(tileName) {
-            const data = await fetch('chain.json')
-            const resp = await data.json()
-            const rest = resp.find((x) => (x.name === tileName))
-            return rest
-        }
-
-        async function fetchNewKYCSession() {
+        async function fetchNewKYCSession() {            
             try {
                 const idToken = idTokenGbl
-                const url = `${chainInfo.teneantUrl}${kycSessionPath}`
+                const url = `${teneantUrl}${kycSessionPath}`
                 const headers = {
-                    'Authorization': 'Bearer ' + chainInfo.kycAccessToken,
+                    'Authorization': 'Bearer ' + kycAccessToken,
                     'content-type': 'application/json',
                 }
                 const resp = await fetch(url, {
@@ -306,17 +255,16 @@
 
         async function getWidgetUrl() {
             //// mydefi
-            const ssiAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImRjOGU4MWMzNGRiODQ5Yjc0MmFjMjFlNWE5Y2ZiYTMwNTUwMiIsInVzZXJJZCI6ImNjZWJlOWNlLWM1MzItNDVmNS1hNzlhLWZkZDRjMzAxYTljOCIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX3NzaSIsImttc0lkIjoiaHM6ZG9jOmUwbGtycWZheW5xbWNsMWh4MjVmY3htODdtMnBjemVrbTh2dm5zemFqbGEiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtOGEyZGU1YSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6ZGM4ZTgxYzM0ZGI4NDliNzQyYWMyMWU1YTljZmJhMzA1NTAyIiwiYWNjZXNzTGlzdCI6WyJBTEwiXSwiZW52IjoiZGV2IiwiYXBwTmFtZSI6IlNTSSBTZXJ2aWNlIEZvciBNeURlZmkgKEtZQykiLCJpYXQiOjE3MjI2MTcwOTQsImV4cCI6MjI0Mjc4MTA5NH0.CAWghRvyzm2i7qpN5e4vtJkNilBiNndGBLV-DaWqd0w"
-
+            
             //// mypersonal
             // const ssiAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImVkYTM4MjM4MjYxOTFiMmU5YmEzNDRhY2JjNTQ4ZGE1ZjRlMCIsInVzZXJJZCI6ImMyMjM4NDlmLTYyMTUtNGQ1OS1hZmI0LWFjYTYxODAyZDUxNyIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX3NzaSIsImttc0lkIjoiaHM6ZG9jOnZycWN5amZodWV1anNqZGs3cF8wNDhrbHNtNHAtYzF1d25wdWhfdmlkbDgiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtMGJjZTU1YSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6ZWRhMzgyMzgyNjE5MWIyZTliYTM0NGFjYmM1NDhkYTVmNGUwIiwiYWNjZXNzTGlzdCI6WyJBTEwiXSwiZW52IjoiZGV2IiwiaWF0IjoxNzIwMDA5ODk3LCJleHAiOjMyNzUyMDk4OTd9.cHNGaJ502o-5_0iXUKm7PKOk-9w6e9W0xBEjKuxNe-Y"
 
             const { sessionId } = await fetchNewKYCSession()
             if (sessionId) {
-                const finalUrl = `${widgetBaseUrl}?kycAccessToken=${chainInfo.kycAccessToken}&ssiAccessToken=${ssiAccessToken}&sessionId=${sessionId}`
+                const finalUrl = `${widgetBaseUrl}?kycAccessToken=${kycAccessToken}&ssiAccessToken=${ssiAccessToken}&sessionId=${sessionId}`
                 return finalUrl
             } else {
-                const finalUrl = `${widgetBaseUrl}?kycAccessToken=${chainInfo.kycAccessToken}&ssiAccessToken=${ssiAccessToken}`
+                const finalUrl = `${widgetBaseUrl}?kycAccessToken=${kycAccessToken}&ssiAccessToken=${ssiAccessToken}`
                 return finalUrl
             }
         }
