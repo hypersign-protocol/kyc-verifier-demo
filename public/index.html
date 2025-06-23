@@ -141,9 +141,7 @@
 
 
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#"><img
-                id="logo"
-                style="    width: 150px;" /></a>
+        <a class="navbar-brand" href="#"><img id="logo" style="    width: 150px;" /></a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -151,8 +149,8 @@
     </nav>
 
     <div class="container" id="blockContainer">
-        <div class="my-1" style="display:flex; justify-content: center;">            
-        </div>        
+        <div class="my-1" style="display:flex; justify-content: center;">
+        </div>
     </div>
     <div class="kycbuttonContainer" id="kycbuttonContainer">
         <span>
@@ -165,20 +163,20 @@
         </span>
     </div>
     <script>
-    function getCustomerId(url) {
-        try {
-            const parsedUrl = new URL(url);
-            const pathSegments = parsedUrl.pathname.split('/').filter(Boolean); // remove empty segments
+        function getCustomerId(url) {
+            try {
+                const parsedUrl = new URL(url);
+                const pathSegments = parsedUrl.pathname.split('/').filter(Boolean); // remove empty segments
 
-            // Check if the last segment looks like a userId
-            const userId = pathSegments.length > 0 ? pathSegments[pathSegments.length - 1] : null;
+                // Check if the last segment looks like a userId
+                const userId = pathSegments.length > 0 ? pathSegments[pathSegments.length - 1] : null;
 
-            return userId || "13f70faf7f5c5d03520b71181136b595f7c6";
-        } catch (err) {
-            console.error("Invalid URL:", err.message);
-            return "13f70faf7f5c5d03520b71181136b595f7c6";
+                return userId || "7710680921aa54b67be21ff9fcd33168e577";
+            } catch (err) {
+                console.error("Invalid URL:", err.message);
+                return "7710680921aa54b67be21ff9fcd33168e577";
+            }
         }
-    }
 
         let ssiAccessToken;
         let kycAccessToken
@@ -212,9 +210,9 @@
         const kycSessionPath = '/api/v1/e-kyc/verification/session'
 
 
-        let idTokenGbl = ""        
-        const buttonContainer = document.getElementById('kycbuttonContainer');        
-        buttonContainer.style.display = 'flex'    
+        let idTokenGbl = ""
+        const buttonContainer = document.getElementById('kycbuttonContainer');
+        buttonContainer.style.display = 'flex'
 
         window.addEventListener('message', function (event) {
             if ((new URL(event.origin)).origin === (new URL(widgetBaseUrl)).origin) {
@@ -224,7 +222,7 @@
                 if (data.status === 'success') {
                     const result = document.getElementById('result')
                     result.innerHTML = `<h2><i class="bi bi-check"></i> You are verified!</h2>`
-                    document.getElementById('load2').style.display = 'none'                
+                    document.getElementById('load2').style.display = 'none'
                     document.getElementById('kycbuttonContainer').style.backgroundColor = '#00800030'
                 }
                 else if (data.status === 'fail') {
@@ -245,7 +243,7 @@
             $this.button('loading');
             const button = document.getElementById('load2')
             button.innerHTML = `<span class="spinner-grow spinner-grow-sm"></span> Verifiying User...`
-            const userData = document.getElementById('userData')            
+            const userData = document.getElementById('userData')
             const url = await getWidgetUrl()
             console.log(url)
             // var popup = window.open(url, 'Popup Window', 'width=850,height=870');
@@ -273,7 +271,7 @@
             );
         }
 
-        async function fetchNewKYCSession() {            
+        async function fetchNewKYCSession() {
             try {
                 const idToken = idTokenGbl
                 const url = `${teneantUrl}${kycSessionPath}`
@@ -295,7 +293,7 @@
 
         async function getWidgetUrl() {
             //// mydefi
-            
+
             //// mypersonal
             // const ssiAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImVkYTM4MjM4MjYxOTFiMmU5YmEzNDRhY2JjNTQ4ZGE1ZjRlMCIsInVzZXJJZCI6ImMyMjM4NDlmLTYyMTUtNGQ1OS1hZmI0LWFjYTYxODAyZDUxNyIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX3NzaSIsImttc0lkIjoiaHM6ZG9jOnZycWN5amZodWV1anNqZGs3cF8wNDhrbHNtNHAtYzF1d25wdWhfdmlkbDgiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtMGJjZTU1YSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6ZWRhMzgyMzgyNjE5MWIyZTliYTM0NGFjYmM1NDhkYTVmNGUwIiwiYWNjZXNzTGlzdCI6WyJBTEwiXSwiZW52IjoiZGV2IiwiaWF0IjoxNzIwMDA5ODk3LCJleHAiOjMyNzUyMDk4OTd9.cHNGaJ502o-5_0iXUKm7PKOk-9w6e9W0xBEjKuxNe-Y"
 
