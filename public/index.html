@@ -256,6 +256,25 @@
         const buttonContainer = document.getElementById('kycbuttonContainer');
         buttonContainer.style.display = 'flex'
 
+        function onError(message) {
+            const errorDom = document.getElementById('userData')
+            if (errorDom) {
+                errorDom.innerHTML = `
+                <div class="alert alert-danger" role="alert">
+                     ${message ? message : `
+                            Failed to verify the user, please try again!
+                        `}
+                        </div>
+                    `
+
+            }
+            const button = document.getElementById('load2')
+            if (button) {
+                button.innerHTML = `<i class="bi bi-person-bounding-box"></i> VERIFY YOUR IDENTITY`
+            }
+
+        }
+
         window.addEventListener('message', function (event) {
             if ((new URL(event.origin)).origin === (new URL(widgetBaseUrl)).origin) {
                 const data = JSON.parse(event.data)
@@ -268,28 +287,34 @@
                     document.getElementById('kycbuttonContainer').style.backgroundColor = '#00800030'
                 }
                 else if (data.status === 'fail') {
-                    const errorDom = document.getElementById('userData')
-                    errorDom.innerHTML = `
-                        <div class="alert alert-danger" role="alert">
-                            Failed to verify the user, please try again!
-                        </div>
-                    `
-                    const button = document.getElementById('load2')
-                    button.innerHTML = `<i class="bi bi-person-bounding-box"></i> VERIFY YOUR IDENTITY`
+                    // const errorDom = document.getElementById('userData')
+                    // errorDom.innerHTML = `
+                    //     <div class="alert alert-danger" role="alert">
+                    //         Failed to verify the user, please try again!
+                    //     </div>
+                    // `
+                    // const button = document.getElementById('load2')
+                    // button.innerHTML = `<i class="bi bi-person-bounding-box"></i> VERIFY YOUR IDENTITY`
+                    onError()
                 }
 
             }
         });
         $('#load2').on('click', async function () {
-            var $this = $(this);
-            $this.button('loading');
-            const button = document.getElementById('load2')
-            button.innerHTML = `<span class="spinner-grow spinner-grow-sm"></span> Verifiying User...`
-            const userData = document.getElementById('userData')
-            const url = await getWidgetUrl()
-            console.log(url)
-            // var popup = window.open(url, 'Popup Window', 'width=850,height=870');
-            openMobileWindow(url);
+            try {
+                var $this = $(this);
+                $this.button('loading');
+                const button = document.getElementById('load2')
+                button.innerHTML = `<span class="spinner-grow spinner-grow-sm"></span> Verifiying User...`
+                const userData = document.getElementById('userData')
+                const url = await getWidgetUrl()
+                console.log(url)
+                if (url) openMobileWindow(url);
+            } catch (e) {
+                console.log(e)
+                onError(e.message)
+                alert(e.message)
+            }
         });
 
         function openMobileWindow(url) {
@@ -314,23 +339,25 @@
         }
 
         async function fetchNewKYCSession() {
-            try {
-                const idToken = idTokenGbl
-                const url = `${teneantUrl}${kycSessionPath}`
-                const headers = {
-                    'Authorization': 'Bearer ' + kycAccessToken,
-                    'content-type': 'application/json',
-                }
-                const resp = await fetch(url, {
-                    method: 'POST',
-                    headers
-                })
-                const json = await resp.json()
-                console.log(json)
-                return json.data;
-            } catch (e) {
-                console.error(e)
+            const idToken = idTokenGbl
+            const url = `${teneantUrl}${kycSessionPath}`
+            const headers = {
+                'Authorization': 'Bearer ' + kycAccessToken,
+                'content-type': 'application/json',
             }
+            const resp = await fetch(url, {
+                method: 'POST',
+                headers
+            })
+
+            const json = await resp.json()
+
+            if (json && json.error) {
+                console.log(json.error.details?.join(' '))
+                throw new Error(json.error.details?.join(' '))
+            }
+            console.log(json)
+            return json.data;
         }
 
         async function getWidgetUrl() {
