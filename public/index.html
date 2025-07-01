@@ -179,8 +179,10 @@
             <span id="result">
 
             </span>
+            <span id="errorData"></span>
         </span>
     </div>
+
     <script>
         window.onload = function () {
             loadJSONData();
@@ -257,19 +259,22 @@
         buttonContainer.style.display = 'flex'
 
         function onError(message) {
-            const errorDom = document.getElementById('userData')
+            const errorDom = document.getElementById('errorData')
             if (errorDom) {
+                errorDom.style.display = 'block'
                 errorDom.innerHTML = `
                 <div class="alert alert-danger" role="alert">
                      ${message ? message : `
                             Failed to verify the user, please try again!
                         `}
-                        </div>
-                    `
+                </div>
+                <div>Please reload the page and try again</div>
+                `
 
             }
             const button = document.getElementById('load2')
             if (button) {
+                button.style.display = 'none'
                 button.innerHTML = `<i class="bi bi-person-bounding-box"></i> VERIFY YOUR IDENTITY`
             }
 
@@ -286,7 +291,7 @@
                     document.getElementById('load2').style.display = 'none'
                     document.getElementById('kycbuttonContainer').style.backgroundColor = '#00800030'
                 }
-                else if (data.status === 'fail') {
+                else if (data.status === 'error') {
                     // const errorDom = document.getElementById('userData')
                     // errorDom.innerHTML = `
                     //     <div class="alert alert-danger" role="alert">
@@ -295,7 +300,8 @@
                     // `
                     // const button = document.getElementById('load2')
                     // button.innerHTML = `<i class="bi bi-person-bounding-box"></i> VERIFY YOUR IDENTITY`
-                    onError()
+                    console.log({ data })
+                    onError(data.message)
                 }
 
             }
