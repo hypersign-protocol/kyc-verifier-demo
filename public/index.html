@@ -337,11 +337,20 @@
             const top = (screenHeight - mobileHeight) / 2;
 
             // Open the window
-            window.open(
+            const idwidget = window.open(
                 url, // Replace with your desired URL
                 '_blank',
                 `width=${mobileWidth},height=${mobileHeight},left=${left},top=${top},resizable,scrollbars`
             );
+
+            const popupChecker = setInterval(() => {
+                if (idwidget.closed) {
+                    clearInterval(popupChecker);
+                    // popup was closed manually (accident or on purpose)
+                    onError('Seems like you rejected the verification request, please reload the page and try again!')
+                    // handle rejection logic here
+                }
+            }, 500);
         }
 
         async function fetchNewKYCSession() {
