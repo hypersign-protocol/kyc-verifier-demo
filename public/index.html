@@ -252,7 +252,8 @@
         const widgetBaseUrl = "https://verify.hypersign.id/"
         const consentAPIpath = '/api/v1/e-kyc/verification/user-consent'
         const kycSessionPath = '/api/v1/e-kyc/verification/session'
-
+        let idwidgetPopup;
+        let popupChecker;
 
         let idTokenGbl = ""
         const buttonContainer = document.getElementById('kycbuttonContainer');
@@ -281,7 +282,9 @@
         }
 
         window.addEventListener('message', function (event) {
+
             if ((new URL(event.origin)).origin === (new URL(widgetBaseUrl)).origin) {
+                clearInterval(popupChecker);
                 const data = JSON.parse(event.data)
                 // Handle the message data sent from the popup
                 console.log('Received message from popup:', event.data);
@@ -337,14 +340,16 @@
             const top = (screenHeight - mobileHeight) / 2;
 
             // Open the window
-            const idwidget = window.open(
+            idwidgetPopup = window.open(
                 url, // Replace with your desired URL
                 '_blank',
                 `width=${mobileWidth},height=${mobileHeight},left=${left},top=${top},resizable,scrollbars`
             );
 
-            const popupChecker = setInterval(() => {
-                if (idwidget.closed) {
+            popupChecker = setInterval(() => {
+                console.log('Checking popup status...')
+                if (idwidgetPopup.closed) {
+                    console.log('Popup closed');
                     clearInterval(popupChecker);
                     // popup was closed manually (accident or on purpose)
                     onError('Seems like you rejected the verification request!')
