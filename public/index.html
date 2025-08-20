@@ -39,14 +39,15 @@
 
     /* Dark Theme */
     [data-theme="dark"] {
-      --theme-primary: #3b82f6;
-      --theme-secondary: #1d4ed8;
+      /* Requested purple: rgba(132, 82, 162, 1) */
+      --theme-primary: rgba(132, 82, 162, 1); /* #8452A2 */
+      --theme-secondary: rgba(103, 64, 126, 1); /* ~20% darker of primary: #67407E */
       --theme-background: #0f172a;
       --theme-surface: #1e293b;
       --theme-text: #f1f5f9;
       --theme-text-secondary: #94a3b8;
       --theme-border: #334155;
-      --theme-accent: #06b6d4;
+      --theme-accent: rgba(132, 82, 162, 1);
     }
 
     /* Grey Theme */
@@ -95,6 +96,11 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
 
+    /* Button color for dark theme uses the same purple variables */
+    [data-theme="dark"] .theme-button {
+      background: linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-secondary) 100%);
+    }
+
     .theme-button:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 25px rgba(0,0,0,0.3);
@@ -103,6 +109,7 @@
     .theme-icon {
       color: var(--theme-primary);
     }
+    [data-theme="dark"] .theme-icon { color: var(--theme-primary); }
 
     .theme-title {
       color: var(--theme-text);
@@ -166,6 +173,11 @@
     .theme-grey { background: linear-gradient(45deg, #6b7280, #9ca3af); }
     .theme-light { background: linear-gradient(45deg, #6366f1, #8b5cf6); }
 
+    /* Powered-by logo: adapt for dark theme visibility */
+    [data-theme="dark"] #poweredByLogo {
+      filter: invert(1) brightness(1.6) contrast(1.1);
+    }
+
     /* Responsive Design */
     @media (max-width: 768px) {
       .theme-selector {
@@ -182,25 +194,21 @@
 </head>
 <body data-theme="light" class="min-h-screen flex flex-col justify-center items-center pt-12">
 
-  <!-- Sandbox Warning Banner -->
-  <div id="sandboxBanner" class="fixed top-0 left-0 right-0 bg-yellow-100 border-b border-yellow-200 px-4 py-3 z-50">
-    <div class="max-w-4xl mx-auto flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <div class="flex-shrink-0">
-          <i data-feather="alert-triangle" class="h-5 w-5 text-yellow-600"></i>
-        </div>
-        <p class="text-sm text-yellow-800">
-          You are in sandbox mode. No real checks will be performed.
-        </p>
+  <!-- Sandbox Warning Banner (centered to content width, initially hidden) -->
+  <div id="sandboxBanner" class="fixed top-0 left-0 right-0 bg-yellow-100 border-b border-yellow-200 px-4 py-3 z-50 hidden">
+    <div class="relative mx-auto max-w-md w-full">
+      <div class="flex items-center justify-center text-center">
+        <i data-feather="alert-triangle" class="h-5 w-5 text-yellow-600 mr-2"></i>
+        <p id="sandboxBannerText" class="text-sm text-yellow-800">You are in sandbox mode. No real checks will be performed.</p>
       </div>
-      <button onclick="closeSandboxBanner()" class="text-yellow-600 hover:text-yellow-800">
+      <button onclick="closeSandboxBanner()" class="absolute top-0 right-0 text-yellow-600 hover:text-yellow-800">
         <i data-feather="x" class="h-4 w-4"></i>
       </button>
     </div>
   </div>
 
   <!-- Theme Selector -->
-  <div class="theme-selector">
+  <!-- <div class="theme-selector">
     <div class="theme-selector-container p-4">
       <h3 class="text-sm font-semibold mb-3 text-center text-gray-700">Choose Theme</h3>
       <div class="flex space-x-3">
@@ -210,24 +218,28 @@
         <div class="theme-option theme-light" data-theme="light" title="Light"></div>
       </div>
     </div>
-  </div>
+  </div> -->
 
-  <!-- Header -->
-<header class="flex items-center space-x-4 mb-10">
-    <img id="logo" class="h-12 w-12 rounded-full" alt="Service Logo">
-    <h1 id="title" class="theme-title text-3xl font-bold"></h1>
-</header>
+
 
   <!-- Central Section with Horizontal Steps -->
-  <section class="theme-card flex flex-col items-center p-8 rounded-2xl shadow-lg max-w-md w-full space-y-6">
+  <section class="theme-card flex flex-col items-center p-8 rounded-2xl shadow-lg max-w-md w-full space-y-4">
+    
+    <!-- Header: logo on left, titles stacked on right -->
+    <header class="flex items-center space-x-4 mb-2 w-full">
+      <img id="logo" class="h-12 w-12 rounded-full flex-shrink-0" alt="Service Logo" title="Service logo" style="display:none" onerror="handleLogoError(this)" onload="handleLogoLoad(this)">
+      <div class="flex flex-col text-left w-full">
+        <h1 id="title" class="theme-title text-3xl font-bold leading-tight">Hypersign KYC</h1>
+        <h2 id="pageTitle" class="theme-title text-2xl leading-snug">Verify Your Identity</h2>
+      </div>
+    </header>
     <!-- Title + Description -->
-    <div class="text-center">
-      <h2 class="theme-title text-3xl font-bold mb-2">Verify Your Identity</h2>
-      <p class="theme-subtitle">Please read the Terms & Conditions before proceeding</p>
+    <div class="">
+      <p id="pageSubtitle" class="theme-subtitle text-left mt-0">Please read the Terms & Conditions before proceeding</p>
     </div>
 
     <!-- Steps stacked vertically, each step is horizontal -->
-    <div class="flex flex-col space-y-4 w-full">
+    <div class="flex flex-col space-y-4 w-full mb-3">
       <div class="flex items-center space-x-4">
         <i data-feather="camera" class="theme-icon h-6 w-6 flex-shrink-0"></i>
         <div class="flex flex-col text-left">
@@ -252,14 +264,19 @@
     </div>
 
     <!-- Call to Action -->
-    <button id="load2" class="theme-button mt-4 font-semibold px-6 py-2 rounded-xl shadow-lg transition-all duration-300" style="display:none">
-      <i class="bi bi-person-bounding-box"></i> Start KYC Verification
+    <button id="load2" class="theme-button mt-2 font-semibold px-6 py-2 rounded-xl shadow-lg transition-all duration-300" style="display:none">
+      <i class="bi bi-shield"></i> Start KYC Verification
     </button>
     
     <!-- Result and Error Display (fixed height, scroll inside) -->
-    <div id="messageArea" class="w-full max-h-[8rem] overflow-y-hidden overflow-x-hidden py-2">
+    <div id="messageArea" class="w-full max-h-[8rem] overflow-y-hidden overflow-x-hidden py-1 mb-1">
       <div id="result" class="w-full"></div>
       <div id="errorData" class="w-full"></div>
+    </div>
+
+    <!-- Contact -->
+    <div id="contactWrapper" class="text-base md:text-lg theme-subtitle">
+      <span class="font-medium">Contact:</span> <a id="contactEmail" class="underline"></a>
     </div>
   </section>
 
@@ -273,12 +290,14 @@
   </div>
 
   <!-- Footer -->
-  <footer class="theme-subtitle mt-12 text-sm text-center space-y-1">
-    <div>Powered by <span class="font-semibold">Hypersign</span></div>
-    <div id="contactWrapper">
-        Contact: <a id="contactEmail" class="underline"></a>
-    </div>  
-</footer>
+  <footer class="theme-subtitle mt-8 text-center space-y-2">
+    <div>
+      <a href="https://hypersign.id" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2">
+        <span class="theme-subtitle">Powered by</span>
+        <img id="poweredByLogo" src="assets/Logo.png" alt="Hypersign" class="h-5 md:h-6 inline-block" />
+      </a>
+    </div>
+  </footer>
 
   <script>
     feather.replace();
@@ -288,6 +307,33 @@
       const banner = document.getElementById('sandboxBanner');
       if (banner) {
         banner.style.display = 'none';
+      }
+    }
+
+    function setSandboxBanner(stage) {
+      const banner = document.getElementById('sandboxBanner');
+      const text = document.getElementById('sandboxBannerText');
+      if (!banner || !text) return;
+
+      if (!stage) {
+        text.textContent = 'developmentStage not found';
+        banner.classList.remove('hidden');
+        banner.style.display = 'block';
+        return;
+      }
+
+      const normalized = String(stage).toLowerCase();
+      if (normalized === 'dev') {
+        text.textContent = 'You are in sandbox mode. No real checks will be performed.';
+        banner.classList.remove('hidden');
+        banner.style.display = 'block';
+      } else if (normalized === 'prod') {
+        banner.classList.add('hidden');
+        banner.style.display = 'none';
+      } else {
+        text.textContent = `developmentStage not found`;
+        banner.classList.remove('hidden');
+        banner.style.display = 'block';
       }
     }
 
@@ -385,14 +431,19 @@
                 }
             }
             
-            // Clear any existing result
+            // Clear any existing result and hide contact
             if (resultDom) {
                 resultDom.innerHTML = '';
             }
+            const contactWrapper = document.getElementById('contactWrapper');
+            if (contactWrapper) contactWrapper.style.display = 'none';
             
             return; // Exit early, don't load config or show button
         }
         
+        // Attach logo handlers early
+        attachLogoHandlers();
+
         // Clear any existing error messages
         clearError();
         
@@ -410,13 +461,18 @@
         
         // Load both local JSON data and API config
         // await loadJSONData();
-        await loadKYCConfigFromAPI();
+        const configOk = await loadKYCConfigFromAPI();
         
         if (!isChromeBrowser()) {
             document.getElementById('browserModal').classList.remove('hidden');
             document.getElementById('browserModal').classList.add('flex');
-        } else {
+        } else if (configOk) {
             document.getElementById('load2').style.display = 'block';
+        } else {
+            const button = document.getElementById('load2');
+            if (button) button.style.display = 'none';
+            const contactWrapper = document.getElementById('contactWrapper');
+            if (contactWrapper) contactWrapper.style.display = 'none';
         }
     };
 
@@ -441,26 +497,33 @@
     function getCustomerId(url) {
         try {
             const parsedUrl = new URL(url);
-            const pathSegments = parsedUrl.pathname.split('/').filter(Boolean); // remove empty segments
-            // Check if the last segment looks like a userId
-            const userId = pathSegments.length > 0 ? pathSegments[pathSegments.length - 1] : null;
-            
-            // Only return userId if it exists and is not the default fallback
-            if (userId && userId !== "13f70faf7f5c5d03520b71181136b595f7c6") {
-                return userId;
+
+            // 1) Try query parameters (case-insensitive keys)
+            const params = parsedUrl.searchParams;
+            let candidateFromQuery = null;
+            params.forEach((value, key) => {
+                const k = String(key).toLowerCase();
+                if (k === 'customerid' || k === 'customer-id' || k === 'id') {
+                    if (!candidateFromQuery) candidateFromQuery = value;
+                }
+            });
+            if (candidateFromQuery && String(candidateFromQuery).trim().length > 0) {
+                return String(candidateFromQuery).trim();
             }
-            
-            // Check for customer ID in query parameters as fallback
-            const queryParams = new URLSearchParams(parsedUrl.search);
-            const customerId = queryParams.get('customerId') || queryParams.get('id');
-            
-            if (customerId) {
-                return customerId;
+
+            // 2) Fallback to last path segment if it looks like an ID
+            const pathSegments = parsedUrl.pathname.split('/').filter(Boolean);
+            const last = pathSegments.length > 0 ? pathSegments[pathSegments.length - 1] : '';
+            const normalizedLast = String(last).trim();
+            const isHtml = /\.html?$/.test(normalizedLast);
+            const idLike = /^[A-Za-z0-9_-]{6,64}$/.test(normalizedLast);
+            if (!isHtml && idLike) {
+                return normalizedLast;
             }
-            
-            return null; // No valid customer ID found
+
+            return null;
         } catch (err) {
-            console.error("Invalid URL:", err.message);
+            console.error('Invalid URL:', err.message);
             return null;
         }
     }
@@ -477,7 +540,7 @@
             // If no customer ID, don't proceed with API call
             if (!id) {
                 console.warn('No customer ID provided, skipping API config load');
-                return;
+                return false;
             }
             
             // Call the new API endpoint
@@ -498,9 +561,11 @@
             console.log('KYC Config loaded from API:', configData);
 
             // Update UI based on API response
-            if (configData?.logoUrl) {
-                console.log('inside if')
-                document.getElementById("logo").src = configData.logoUrl;
+            const logoImg = document.getElementById('logo');
+            if (configData?.logoUrl && logoImg) {
+                logoImg.src = configData.logoUrl;
+            } else {
+                handleLogoError(logoImg)
             }
             if (configData?.serviceName) {
                 const titleElement = document.getElementById('title');
@@ -510,13 +575,13 @@
             }
 
             if (configData?.pageTitle) {
-                const titleElement = document.querySelector('h2');
+                const titleElement = document.getElementById('pageTitle');
                 if (titleElement) {
                     titleElement.textContent = configData.pageTitle;
                 }
             }
             if (configData?.pageDescription) {
-                const descElement = document.querySelector('p');
+                const descElement = document.getElementById('pageSubtitle');
                 if (descElement) {
                     descElement.textContent = configData.pageDescription;
                 }
@@ -525,6 +590,8 @@
             if (configData?.themeColor && themes.includes(configData.themeColor)) {
                 setTheme(configData.themeColor);
             }
+            // Set sandbox banner based on developmentStage
+            setSandboxBanner(configData?.developmentStage);
             // Update tenant URL if provided
             if (configData?.tenantUrl) {
                 teneantUrl = configData.tenantUrl;
@@ -544,9 +611,16 @@
                 // Hide the entire "Contact:" line if no email
                 contactWrapper.style.display = "none";
              }
+            return true;
         } catch (error) {
             console.error('Error loading KYC config from API:', error);
-            // API failure is not critical, continue with local data
+            // API failure is not critical; show fallback banner message
+            setSandboxBanner(undefined);
+            // Show user-facing error and disable start button
+            showConfigLoadError('Unable to load configuration from server. Please check the customer ID in the URL and try again.');
+            // Ensure header shows a graceful placeholder instead of a broken image
+            handleLogoError(document.getElementById('logo'));
+            return false;
         }
     }
 
@@ -567,7 +641,12 @@
             ssiAccessToken = matchedData?.ssiAccessToken ?? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImRjOGU4MWMzNGRiODQ5Yjc0MmFjMjFlNWE5Y2ZiYTMwNTUwMiIsInVzZXJJZCI6ImNjZWJlOWNlLWM1MzItNDVmNS1hNzlhLWZkZDRjMzAxYTljOCIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX3NzaSIsImttc0lkIjoiaHM6ZG9jOmUwbGtycWZheW5xbWNsMWh4MjVmY3htODdtMnBjemVrbTh2dm5zemFqbGEiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtOGEyZGU1YSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6ZGM4ZTgxYzM0ZGI4NDliNzQyYWMyMWU1YTljZmJhMzA1NTAyIiwiYWNjZXNzTGlzdCI6WyJBTEwiXSwiZW52IjoiZGV2IiwiYXBwTmFtZSI6IlNTSSBTZXJ2aWNlIEZvciBNeURlZmkiLCJpYXQiOjE3MjI2MTcwOTQsImV4cCI6MjI0Mjc4MTA5NH0.CAWghRvyzm2i7qpN5e4vtJkNilBiNndGBLV-DaWqd0w"
             kycAccessToken = matchedData?.kycAccessToken ?? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjEzZjcwZmFmN2Y1YzVkMDM1MjBiNzExODExMzZiNTk1ZjdjNiIsInVzZXJJZCI6ImNjZWJlOWNlLWM1MzItNDVmNS1hNzlhLWZkZDRjMzAxYTljOCIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX2t5YyIsImttc0lkIjoiaHM6ZG9jOm15cWJldHlwNnctazB6anlkY3liYXZvbncxNGZnb2UzN2RhcDR5Y2NpbzAiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiIsImh0dHBzOi8vZW50aXR5LmRhc2hib2FyZC5oeXBlcnNpZ24uaWQiLCJodHRwczovL3ZlcmlmeS5oeXBlcnNpZ24uaWQiXSwic3ViZG9tYWluIjoiZW50LTRjNzE4NzQiLCJlZHZJZCI6ImhzOmRldmVsb3Blci1kYXNoYm9hcmQ6YXBwOjU0Nzc0OWIyODJmNjI4N2Q3YzhhNjk2MDllNDE5NGFmOTY0YyIsImFjY2Vzc0xpc3QiOlsiQUxMIiwiUkVBRF9VU0VSX0NPTlNFTlQiLCJXUklURV9VU0VSX0NPTlNFTlQiLCJXUklURV9QQVNTSVZFX0xJVkVMSU5FU1MiLCJXUklURV9ET0NfT0NSIl0sImVudiI6ImRldiIsImFwcE5hbWUiOiJOaWJpcnUgKG15RGVmaSkgT25jaGFpbiBLWUMgQXBwIiwiaXNzdWVyRGlkIjoiZGlkOmhpZDp0ZXN0bmV0OjAzNDYwZWU1LWM0ZTQtNGYwNi04NDg3LTU1YTZjMjMwM2JhZiIsImlzc3VlclZlcmlmaWNhdGlvbk1ldGhvZElkIjoiZGlkOmhpZDp0ZXN0bmV0OjAzNDYwZWU1LWM0ZTQtNGYwNi04NDg3LTU1YTZjMjMwM2JhZiNrZXktMiIsImRlcGVuZGVudFNlcnZpY2VzIjpbImRjOGU4MWMzNGRiODQ5Yjc0MmFjMjFlNWE5Y2ZiYTMwNTUwMiJdLCJpYXQiOjE3MzI3NzMzNzIsImV4cCI6MTg5Mjc4MjU3Mn0.C6vKRubBQQDL_TYwp2RE59YgGlcLdifr_jxBsPzSIPw"
             teneantUrl = matchedData?.teneantUrl ?? "https://ent-4c71874.api.cavach.hypersign.id"
-            document.getElementById("logo").src = matchedData.logoUrl;
+            const logoImg = document.getElementById('logo');
+            if (matchedData.logoUrl && logoImg) {
+                logoImg.src = matchedData.logoUrl;
+            } else {
+                handleLogoError(logoImg)
+            }
         } catch (error) {
             console.error('Error loading the JSON file:', error);
             ssiAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImRjOGU4MWMzNGRiODQ5Yjc0MmFjMjFlNWE5Y2ZiYTMwNTUwMiIsInVzZXJJZCI6ImNjZWJlOWNlLWM1MzItNDVmNS1hNzlhLWZkZDRjMzAxYTljOCIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX3NzaSIsImttc0lkIjoiaHM6ZG9jOmUwbGtycWZheW5xbWNsMWh4MjVmY3htODdtMnBjemVrbTh2dm5zemFqbGEiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtOGEyZGU1YSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6ZGM4ZTgxYzM0ZGI4NDliNzQyYWMyMWU1YTljZmJhMzA1NTAyIiwiYWNjZXNzTGlzdCI6WyJBTEwiXSwiZW52IjoiZGV2IiwiYXBwTmFtZSI6IlNTSSBTZXJ2aWNlIEZvciBNeURlZmkiLCJpYXQiOjE3MjI2MTcwOTQsImV4cCI6MjI0Mjc4MTA5NH0.CAWghRvyzm2i7qpN5e4vtJkNilBiNndGBLV-DaWqd0w"
@@ -590,7 +669,7 @@
         if (errorDom) {
             errorDom.style.display = 'block'
             errorDom.innerHTML = `
-            <div class="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-2xl overflow-x-auto overflow-y-hidden" role="alert">
+            <div class="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded-2xl overflow-x-auto overflow-y-hidden" role="alert">
                 <div class="whitespace-nowrap">
                     ${message ? message : `
                         Failed to verify the user, please try again!
@@ -615,6 +694,88 @@
         }
     }
 
+    function handleLogoError(imgEl) {
+        try {
+            if (!imgEl) return;
+            imgEl.style.display = 'none';
+            const header = imgEl.parentElement;
+            if (!header) return;
+            if (!document.getElementById('logoFallback')) {
+                const fallback = document.createElement('div');
+                fallback.id = 'logoFallback';
+                fallback.className = 'h-12 w-12 rounded-full flex items-center justify-center bg-gray-200 text-gray-600';
+                fallback.innerHTML = '<i class="bi bi-image"></i>';
+                fallback.title = 'Image not loaded';
+                header.insertBefore(fallback, header.firstChild);
+            }
+        } catch (_) {}
+    }
+
+    function handleLogoLoad(imgEl) {
+        try {
+            if (!imgEl) return;
+            // Remove any fallback if present
+            const fallback = document.getElementById('logoFallback');
+            if (fallback && fallback.parentElement) {
+                fallback.parentElement.removeChild(fallback);
+            }
+            imgEl.style.display = '';
+        } catch (_) {}
+    }
+
+    function attachLogoHandlers() {
+        const img = document.getElementById('logo');
+        if (!img) return;
+        img.addEventListener('error', function () { handleLogoError(img) });
+        img.addEventListener('load', function () {
+            const fallback = document.getElementById('logoFallback');
+            if (fallback && fallback.parentElement) fallback.parentElement.removeChild(fallback);
+            img.style.display = '';
+        });
+    }
+
+    function disableStartButton() {
+        const button = document.getElementById('load2')
+        if (button) {
+            button.disabled = true
+            button.classList.add('opacity-50', 'cursor-not-allowed')
+        }
+    }
+
+    function showConfigLoadError(message) {
+        const errorDom = document.getElementById('errorData')
+        if (errorDom) {
+            errorDom.style.display = 'block'
+            errorDom.innerHTML = `
+            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl" role="alert">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <i class="bi bi-exclamation-circle mr-2 text-lg text-red-600"></i>
+                  <span class="font-semibold">Unable to load configuration</span>
+                </div>
+                <button id="cfgReadMore" class="text-xs font-medium text-red-700 hover:text-red-900 underline">See more</button>
+              </div>
+              <div id="cfgDetails" class="hidden mt-2 text-sm text-red-700 overflow-x-auto overflow-y-hidden whitespace-nowrap">
+                ${message || 'Please check the customer ID in the URL, your network connection, or try again later. If the issue persists, contact support.'}
+              </div>
+            </div>
+            `
+            const readMoreBtn = document.getElementById('cfgReadMore');
+            if (readMoreBtn) {
+                readMoreBtn.addEventListener('click', function () {
+                    const details = document.getElementById('cfgDetails');
+                    if (!details) return;
+                    const isHidden = details.classList.toggle('hidden');
+                    readMoreBtn.textContent = isHidden ? 'See more' : 'Hide';
+                });
+            }
+        }
+        const button = document.getElementById('load2')
+        if (button) {
+            button.style.display = 'none'
+        }
+    }
+
     window.addEventListener('message', function (event) {
 
         if ((new URL(event.origin)).origin === (new URL(widgetBaseUrl)).origin) {
@@ -624,7 +785,7 @@
             console.log('Received message from popup:', event.data);
             if (data.status === 'success') {
                 const result = document.getElementById('result')
-                result.innerHTML = `<h2 class="text-green-600 text-center text-2xl font-bold"><i class="bi bi-check-circle mr-3"></i> You are verified!</h2>`
+                result.innerHTML = `<h2 class="text-green-600 text-center text-2xl font-semibold"><i class="bi bi-check-circle mr-3"></i> You are verified!</h2>`
                 document.getElementById('load2').style.display = 'none'
             }
             else if (data.status === 'error') {
