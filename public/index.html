@@ -256,9 +256,11 @@
       <i class="bi bi-person-bounding-box"></i> Start KYC Verification
     </button>
     
-    <!-- Result and Error Display -->
-    <div id="result" class="w-full"></div>
-    <div id="errorData" class="w-full"></div>
+    <!-- Result and Error Display (fixed height, scroll inside) -->
+    <div id="messageArea" class="w-full max-h-[8rem] overflow-y-hidden overflow-x-hidden py-2">
+      <div id="result" class="w-full"></div>
+      <div id="errorData" class="w-full"></div>
+    </div>
   </section>
 
   <!-- Browser Modal -->
@@ -328,6 +330,84 @@
     initializeTheme();
 
     window.onload = async function () {
+        // Check for customer ID first
+        const customerId = getCustomerId(window.location.href);
+        
+        if (!customerId) {
+            // Show error message when no customer ID is provided
+            const errorDom = document.getElementById('errorData');
+            const resultDom = document.getElementById('result');
+            const button = document.getElementById('load2');
+            const logoImg = document.getElementById('logo');
+            const header = logoImg ? logoImg.parentElement : null;
+            
+            if (errorDom) {
+                errorDom.style.display = 'block';
+                errorDom.innerHTML = `
+                <div class="bg-gray-50 border border-gray-200 text-gray-700 px-4 py-3 rounded-xl" role="alert">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                      <i class="bi bi-info-circle mr-2 text-lg text-gray-600"></i>
+                      <span class="font-semibold">Customer ID required</span>
+                    </div>
+                    <button id="cidReadMore" class="text-xs font-medium text-gray-700 hover:text-gray-900 underline">Read more</button>
+                  </div>
+                  <div id="cidDetails" class="hidden mt-2 text-sm text-gray-700 overflow-x-auto overflow-y-hidden whitespace-nowrap">
+                    Please provide a valid customer ID in the URL to activate this page. · Get your customer ID by logging into <span class="font-medium">Entity Studio</span> and generating your custom branded page. · The link will look like <code class="bg-gray-100 px-2 py-1 rounded break-all">https://verifier.hypersign.id/&lt;your-customer-id&gt;</code> (e.g. <code class="bg-gray-100 px-2 py-1 rounded break-all">https://verifier.hypersign.id/shsy67stshan</code>).
+                  </div>
+                </div>
+                `;
+                const readMoreBtn = document.getElementById('cidReadMore');
+                if (readMoreBtn) {
+                    readMoreBtn.addEventListener('click', function () {
+                        const details = document.getElementById('cidDetails');
+                        if (!details) return;
+                        const isHidden = details.classList.toggle('hidden');
+                        readMoreBtn.textContent = isHidden ? 'Read more' : 'Hide';
+                    });
+                }
+            }
+            
+            // Hide the button
+            if (button) {
+                button.style.display = 'none';
+            }
+            
+            // Swap logo image with a CSS/icon fallback
+            if (logoImg && header) {
+                logoImg.style.display = 'none';
+                if (!document.getElementById('logoFallback')) {
+                    const fallback = document.createElement('div');
+                    fallback.id = 'logoFallback';
+                    fallback.className = 'h-12 w-12 rounded-full flex items-center justify-center bg-gray-200 text-gray-600';
+                    fallback.innerHTML = '<i class="bi bi-shield-lock"></i>';
+                    header.insertBefore(fallback, header.firstChild);
+                }
+            }
+            
+            // Clear any existing result
+            if (resultDom) {
+                resultDom.innerHTML = '';
+            }
+            
+            return; // Exit early, don't load config or show button
+        }
+        
+        // Clear any existing error messages
+        clearError();
+        
+        // Ensure logo image is visible and remove fallback if present
+        (function restoreLogo() {
+            const logoImg = document.getElementById('logo');
+            const fallback = document.getElementById('logoFallback');
+            if (fallback && fallback.parentElement) {
+                fallback.parentElement.removeChild(fallback);
+            }
+            if (logoImg) {
+                logoImg.style.display = '';
+            }
+        })();
+        
         // Load both local JSON data and API config
         // await loadJSONData();
         await loadKYCConfigFromAPI();
@@ -364,10 +444,24 @@
             const pathSegments = parsedUrl.pathname.split('/').filter(Boolean); // remove empty segments
             // Check if the last segment looks like a userId
             const userId = pathSegments.length > 0 ? pathSegments[pathSegments.length - 1] : null;
-            return userId || "13f70faf7f5c5d03520b71181136b595f7c6";
+            
+            // Only return userId if it exists and is not the default fallback
+            if (userId && userId !== "13f70faf7f5c5d03520b71181136b595f7c6") {
+                return userId;
+            }
+            
+            // Check for customer ID in query parameters as fallback
+            const queryParams = new URLSearchParams(parsedUrl.search);
+            const customerId = queryParams.get('customerId') || queryParams.get('id');
+            
+            if (customerId) {
+                return customerId;
+            }
+            
+            return null; // No valid customer ID found
         } catch (err) {
             console.error("Invalid URL:", err.message);
-            return "13f70faf7f5c5d03520b71181136b595f7c6";
+            return null;
         }
     }
 
@@ -380,9 +474,16 @@
         try {
             const id = getCustomerId(window.location.href);
             
+            // If no customer ID, don't proceed with API call
+            if (!id) {
+                console.warn('No customer ID provided, skipping API config load');
+                return;
+            }
+            
             // Call the new API endpoint
-            const response = await fetch(`https://api.entity.dashboard.hypersign.id/api/v1/app/${id}/kyc-webpage-config`, {         
-                method: 'GET',
+           // const response = await fetch(`https://api.entity.dashboard.hypersign.id/api/v1/app/${id}/kyc-webpage-config`, {         
+          const response = await fetch(`http://localhost:3002/api/v1/app/${id}/kyc-webpage-config`, {     
+           method: 'GET',
                 credentials: 'include', // This includes cookies in the request
                 headers: {
                     'Content-Type': 'application/json',
@@ -453,6 +554,13 @@
     async function loadJSONData() {
         try {
             const id = getCustomerId(window.location.href)
+            
+            // If no customer ID, don't proceed
+            if (!id) {
+                console.warn('No customer ID provided, skipping JSON data load');
+                return;
+            }
+            
             const response = await fetch('tokenDetail.json');
             tokenData = await response.json();
             const matchedData = tokenData.find((tokenDetail) => tokenDetail.id === id)
@@ -482,10 +590,12 @@
         if (errorDom) {
             errorDom.style.display = 'block'
             errorDom.innerHTML = `
-            <div class="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-2xl" role="alert">
-                 ${message ? message : `
+            <div class="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-2xl overflow-x-auto overflow-y-hidden" role="alert">
+                <div class="whitespace-nowrap">
+                    ${message ? message : `
                         Failed to verify the user, please try again!
                     `}
+                </div>
             </div>
             <div class="text-center mt-3 text-lg text-gray-600">Please reload the page and try again</div>
             `
@@ -494,6 +604,14 @@
         if (button) {
             button.style.display = 'none'
             button.innerHTML = `<i class="bi bi-person-bounding-box mr-3"></i> Start KYC Verification`
+        }
+    }
+
+    function clearError() {
+        const errorDom = document.getElementById('errorData')
+        if (errorDom) {
+            errorDom.style.display = 'none'
+            errorDom.innerHTML = ''
         }
     }
 
@@ -518,6 +636,13 @@
     
     $('#load2').on('click', async function () {
         try {
+            // Check for customer ID before proceeding
+            const customerId = getCustomerId(window.location.href);
+            if (!customerId) {
+                onError('Customer ID is required. Please provide a valid customer ID in the URL.');
+                return;
+            }
+            
             var $this = $(this);
             $this.button('loading');
             const button = document.getElementById('load2')
