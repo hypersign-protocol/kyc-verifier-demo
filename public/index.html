@@ -855,7 +855,7 @@
         const idToken = idTokenGbl
         const url = `${teneantUrl}${kycSessionPath}`
         const headers = {
-            'Authorization': 'Bearer ' + kycAccessToken,
+            'x-kyc-access-token':  kycAccessToken,
             'content-type': 'application/json',
         }
         const resp = await fetch(url, {
