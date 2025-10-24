@@ -464,10 +464,7 @@
         // await loadJSONData();
         const configOk = await loadKYCConfigFromAPI();
         
-        if (!isChromeBrowser()) {
-            document.getElementById('browserModal').classList.remove('hidden');
-            document.getElementById('browserModal').classList.add('flex');
-        } else if (configOk) {
+        if (configOk) {
             document.getElementById('load2').style.display = 'block';
         } else {
             const button = document.getElementById('load2');
@@ -485,21 +482,7 @@
         browserModal.classList.add('hidden');
         browserModal.classList.remove('flex');
     });
-    function isChromeBrowser() {
-        const userAgent = navigator.userAgent;
-        
-        // Check for Chrome on iOS (uses CriOS identifier)
-        const isiOSChrome = userAgent.includes("CriOS");
-        
-        // Check for regular Chrome/Chromium on desktop/Android
-        const isChromium = userAgent.includes("Chrome") || userAgent.includes("Chromium");
-        const isEdge = userAgent.includes("Edg/");
-        const isOpera = userAgent.includes("OPR/");
-        const isBrave = navigator.brave !== undefined;
-
-        // Chrome on iOS or Chrome/Chromium on other platforms (but not Edge/Opera/Brave)
-        return isiOSChrome || (isChromium && !isEdge && !isOpera && !isBrave);
-    }
+    
     function getCustomerId(url) {
         try {
             const parsedUrl = new URL(url);
