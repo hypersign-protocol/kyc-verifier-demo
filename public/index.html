@@ -525,7 +525,7 @@
     async function loadKYCConfigFromAPI() {
         try {
             const id = getCustomerId(window.location.href);
-            
+
             // If no customer ID, don't proceed with API call
             if (!id) {
                 console.warn('No customer ID provided, skipping API config load');
@@ -533,8 +533,8 @@
             }
             
             // Call the new API endpoint
-          const response = await fetch(`https://api.entity.dashboard.hypersign.id/api/v1/app/${id}/kyc-webpage-config`, {         
-          //const response = await fetch(`http://localhost:3002/api/v1/app/${id}/kyc-webpage-config`, {     
+          const response = await fetch(`https://api.entity.dashboard.hypersign.id/api/v1/app/verifier/${id}`, {         
+          // const response = await fetch(`http://localhost:3002/api/v1/app/verifier/${id}`, {     
            method: 'GET',
                 credentials: 'include', // This includes cookies in the request
                 headers: {
@@ -545,10 +545,27 @@
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-
             const configData = await response.json();
             console.log('KYC Config loaded from API:', configData);
-
+           
+            const appId = configData?.serviceId;
+            if(!appId){
+              throw new  Error("appId not found in the config API response");
+            }
+            const tokenResponse= await fetch(`https://api.entity.dashboard.hypersign.id/api/v1/app/verifier/${id}/tokens?appId=${appId}`,{
+          //const tokenResponse= await fetch(`http://localhost:3002/api/v1/app/verifier/${id}/tokens?appId=${appId}`,{
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                
+                }
+        })           
+        if (!tokenResponse.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+        }
+         const tokenData = await tokenResponse.json();
             // Update UI based on API response
             const logoImg = document.getElementById('logo');
             if (configData?.logoUrl && logoImg) {
@@ -585,11 +602,11 @@
             if (configData?.tenantUrl) {
                 teneantUrl = configData.tenantUrl;
             }
-            if(configData?.ssiAccessToken){
-                 ssiAccessToken= configData?.ssiAccessToken
+            if(tokenData?.ssiAccessToken){
+                 ssiAccessToken= tokenData?.ssiAccessToken
             }
-             if(configData?.kycAccessToken){
-                 kycAccessToken= configData?.kycAccessToken
+             if(tokenData?.kycAccessToken){
+                 kycAccessToken= tokenData?.kycAccessToken
             }
             const contactWrapper = document.getElementById("contactWrapper");
             const emailElement = document.getElementById("contactEmail");      
