@@ -533,7 +533,7 @@
             }
             
             // Call the new API endpoint
-          const response = await fetch(`https://api.entity.dashboard.hypersign.id/api/v1/app/verifier/${id}`, {         
+           const response = await fetch(`https://api.entity.dashboard.hypersign.id/api/v1/app/verifier/${id}`, {         
           // const response = await fetch(`http://localhost:3002/api/v1/app/verifier/${id}`, {     
            method: 'GET',
                 credentials: 'include', // This includes cookies in the request
@@ -553,7 +553,7 @@
               throw new  Error("appId not found in the config API response");
             }
             const tokenResponse= await fetch(`https://api.entity.dashboard.hypersign.id/api/v1/app/verifier/${id}/tokens?appId=${appId}`,{
-          //const tokenResponse= await fetch(`http://localhost:3002/api/v1/app/verifier/${id}/tokens?appId=${appId}`,{
+          // const tokenResponse= await fetch(`http://localhost:3002/api/v1/app/verifier/${id}/tokens?appId=${appId}`,{
                 method: 'POST',
                 credentials: 'include',
                 headers: {
