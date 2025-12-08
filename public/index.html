@@ -521,6 +521,7 @@
     let kycAccessToken
     let teneantUrl
     let tokenData
+    const entityDashboardBaseUrl = 'https://api.entity.dashboard.hypersign.id'
     // New function to load KYC config from API
     async function loadKYCConfigFromAPI() {
         try {
@@ -531,10 +532,8 @@
                 console.warn('No customer ID provided, skipping API config load');
                 return false;
             }
-            
             // Call the new API endpoint
-           const response = await fetch(`https://api.entity.dashboard.hypersign.id/api/v1/app/verifier/${id}`, {         
-          // const response = await fetch(`http://localhost:3002/api/v1/app/verifier/${id}`, {     
+           const response = await fetch(`${entityDashboardBaseUrl}/api/v1/app/verifier/${id}`, {            
            method: 'GET',
                 credentials: 'include', // This includes cookies in the request
                 headers: {
@@ -552,9 +551,8 @@
             if(!appId){
               throw new  Error("appId not found in the config API response");
             }
-            const tokenResponse= await fetch(`https://api.entity.dashboard.hypersign.id/api/v1/app/verifier/${id}/tokens?appId=${appId}`,{
-          // const tokenResponse= await fetch(`http://localhost:3002/api/v1/app/verifier/${id}/tokens?appId=${appId}`,{
-                method: 'POST',
+           const tokenResponse= await fetch(`${entityDashboardBaseUrl}/api/v1/app/verifier/${id}/tokens?appId=${appId}`,{
+            method: 'POST',
                 credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
