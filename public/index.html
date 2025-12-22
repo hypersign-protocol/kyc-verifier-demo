@@ -317,7 +317,9 @@
       if (!banner || !text) return;
 
       if (!stage) {
-        text.textContent = 'developmentStage not found';
+        // setting default to dev mode.
+        stage = 'dev';
+        text.textContent = 'You are in sandbox mode. No real checks will be performed.';
         banner.classList.remove('hidden');
         banner.style.display = 'block';
         return;
@@ -533,9 +535,9 @@
             }
             
             // Call the new API endpoint
-          const response = await fetch(`https://api.entity.dashboard.hypersign.id/api/v1/app/${id}/kyc-webpage-config`, {         
-          //const response = await fetch(`http://localhost:3002/api/v1/app/${id}/kyc-webpage-config`, {     
-           method: 'GET',
+        const response = await fetch(`https://api.entity.dashboard.hypersign.id/api/v1/app/verifier/${id}`, {
+          //const response = await fetch(`http://localhost:3002/api/v1/app/verifier/${id}`, {
+          method: 'GET',
                 credentials: 'include', // This includes cookies in the request
                 headers: {
                     'Content-Type': 'application/json',
