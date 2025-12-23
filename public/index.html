@@ -317,7 +317,9 @@
       if (!banner || !text) return;
 
       if (!stage) {
-        text.textContent = 'developmentStage not found';
+        // setting default to dev mode.
+        stage = 'dev';
+        text.textContent = 'You are in sandbox mode. No real checks will be performed.';
         banner.classList.remove('hidden');
         banner.style.display = 'block';
         return;
@@ -533,8 +535,9 @@
                 return false;
             }
             // Call the new API endpoint
+
            const response = await fetch(`${entityDashboardBaseUrl}/api/v1/app/verifier/${id}`, {            
-           method: 'GET',
+                method: 'GET',
                 credentials: 'include', // This includes cookies in the request
                 headers: {
                     'Content-Type': 'application/json',
