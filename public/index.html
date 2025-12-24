@@ -317,7 +317,9 @@
       if (!banner || !text) return;
 
       if (!stage) {
-        text.textContent = 'developmentStage not found';
+        // setting default to dev mode.
+        stage = 'dev';
+        text.textContent = 'You are in sandbox mode. No real checks will be performed.';
         banner.classList.remove('hidden');
         banner.style.display = 'block';
         return;
@@ -521,21 +523,21 @@
     let kycAccessToken
     let teneantUrl
     let tokenData
+    const entityDashboardBaseUrl = 'https://api.entity.dashboard.hypersign.id'
     // New function to load KYC config from API
     async function loadKYCConfigFromAPI() {
         try {
             const id = getCustomerId(window.location.href);
-            
+
             // If no customer ID, don't proceed with API call
             if (!id) {
                 console.warn('No customer ID provided, skipping API config load');
                 return false;
             }
-            
             // Call the new API endpoint
-          const response = await fetch(`https://api.entity.dashboard.hypersign.id/api/v1/app/${id}/kyc-webpage-config`, {         
-          //const response = await fetch(`http://localhost:3002/api/v1/app/${id}/kyc-webpage-config`, {     
-           method: 'GET',
+
+           const response = await fetch(`${entityDashboardBaseUrl}/api/v1/app/verifier/${id}`, {            
+                method: 'GET',
                 credentials: 'include', // This includes cookies in the request
                 headers: {
                     'Content-Type': 'application/json',
@@ -545,10 +547,26 @@
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-
             const configData = await response.json();
             console.log('KYC Config loaded from API:', configData);
-
+           
+            const appId = configData?.serviceId;
+            if(!appId){
+              throw new  Error("appId not found in the config API response");
+            }
+           const tokenResponse= await fetch(`${entityDashboardBaseUrl}/api/v1/app/verifier/${id}/tokens?appId=${appId}`,{
+            method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                
+                }
+        })           
+        if (!tokenResponse.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+        }
+         const tokenData = await tokenResponse.json();
             // Update UI based on API response
             const logoImg = document.getElementById('logo');
             if (configData?.logoUrl && logoImg) {
@@ -585,11 +603,11 @@
             if (configData?.tenantUrl) {
                 teneantUrl = configData.tenantUrl;
             }
-            if(configData?.ssiAccessToken){
-                 ssiAccessToken= configData?.ssiAccessToken
+            if(tokenData?.ssiAccessToken){
+                 ssiAccessToken= tokenData?.ssiAccessToken
             }
-             if(configData?.kycAccessToken){
-                 kycAccessToken= configData?.kycAccessToken
+             if(tokenData?.kycAccessToken){
+                 kycAccessToken= tokenData?.kycAccessToken
             }
             const contactWrapper = document.getElementById("contactWrapper");
             const emailElement = document.getElementById("contactEmail");      
@@ -640,7 +658,7 @@
             console.error('Error loading the JSON file:', error);
             ssiAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImRjOGU4MWMzNGRiODQ5Yjc0MmFjMjFlNWE5Y2ZiYTMwNTUwMiIsInVzZXJJZCI6ImNjZWJlOWNlLWM1MzItNDVmNS1hNzlhLWZkZDRjMzAxYTljOCIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX3NzaSIsImttc0lkIjoiaHM6ZG9jOmUwbGtycWZheW5xbWNsMWh4MjVmY3htODdtMnBjemVrbTh2dm5zemFqbGEiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtOGEyZGU1YSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6ZGM4ZTgxYzM0ZGI4NDliNzQyYWMyMWU1YTljZmJhMzA1NTAyIiwiYWNjZXNzTGlzdCI6WyJBTEwiXSwiZW52IjoiZGV2IiwiYXBwTmFtZSI6IlNTSSBTZXJ2aWNlIEZvciBNeURlZmkiLCJpYXQiOjE3MjI2MTcwOTQsImV4cCI6MjI0Mjc4MTA5NH0.CAWghRvyzm2i7qpN5e4vtJkNilBiNndGBLV-DaWqd0w"
             kycAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjEzZjcwZmFmN2Y1YzVkMDM1MjBiNzExODExMzZiNTk1ZjdjNiIsInVzZXJJZCI6ImNjZWJlOWNlLWM1MzItNDVmNS1hNzlhLWZkZDRjMzAxYTljOCIsImdyYW50VHlwZSI6ImFjY2Vzc19zZXJ2aWNlX2t5YyIsImttc0lkIjoiaHM6ZG9jOm15cWJldHlwNnctazB6anlkY3liYXZvbncxNGZnb2UzN2RhcDR5Y2NpbzAiLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiIsImh0dHBzOi8vZW50aXR5LmRhc2hib2FyZC5oeXBlcnNpZ24uaWQiLCJodHRwczovL3ZlcmlmeS5oeXBlcnNpZ24uaWQiXSwic3ViZG9tYWluIjoiZW50LTRjNzE4NzQiLCJlZHZJZCI6ImhzOmRldmVsb3Blci1kYXNoYm9hcmQ6YXBwOjU0Nzc0OWIyODJmNjI4N2Q3YzhhNjk2MDllNDE5NGFmOTY0YyIsImFjY2Vzc0xpc3QiOlsiQUxMIiwiUkVBRF9VU0VSX0NPTlNFTlQiLCJXUklURV9VU0VSX0NPTlNFTlQiLCJXUklURV9QQVNTSVZFX0xJVkVMSU5FU1MiLCJXUklURV9ET0NfT0NSIl0sImVudiI6ImRldiIsImFwcE5hbWUiOiJOaWJpcnUgKG15RGVmaSkgT25jaGFpbiBLWUMgQXBwIiwiaXNzdWVyRGlkIjoiZGlkOmhpZDp0ZXN0bmV0OjAzNDYwZWU1LWM0ZTQtNGYwNi04NDg3LTU1YTZjMjMwM2JhZiIsImlzc3VlclZlcmlmaWNhdGlvbk1ldGhvZElkIjoiZGlkOmhpZDp0ZXN0bmV0OjAzNDYwZWU1LWM0ZTQtNGYwNi04NDg3LTU1YTZjMjMwM2JhZiNrZXktMiIsImRlcGVuZGVudFNlcnZpY2VzIjpbImRjOGU4MWMzNGRiODQ5Yjc0MmFjMjFlNWE5Y2ZiYTMwNTUwMiJdLCJpYXQiOjE3MzI3NzMzNzIsImV4cCI6MTg5Mjc4MjU3Mn0.C6vKRubBQQDL_TYwp2RE59YgGlcLdifr_jxBsPzSIPw"
-            teneantUrl = "https://ent-4c71874.api.cavach.hypersign.id"
+            teneantUrl = "https://api.cavach.hypersign.id"
             document.getElementById("logo").src = "https://i.ibb.co/MRV1T6k/mydefi-high-resolution-logo-black-transparent.png";
         }
     }
