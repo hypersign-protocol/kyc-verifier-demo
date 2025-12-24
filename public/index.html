@@ -551,10 +551,11 @@
             console.log('KYC Config loaded from API:', configData);
            
             const appId = configData?.serviceId;
+            const verifierConfigId= configData._id
             if(!appId){
               throw new  Error("appId not found in the config API response");
             }
-           const tokenResponse= await fetch(`${entityDashboardBaseUrl}/api/v1/app/verifier/${id}/tokens?appId=${appId}`,{
+           const tokenResponse= await fetch(`${entityDashboardBaseUrl}/api/v1/app/verifier/${verifierConfigId}/tokens?appId=${appId}`,{
             method: 'POST',
                 credentials: 'include',
                 headers: {
