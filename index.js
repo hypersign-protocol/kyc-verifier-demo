@@ -11,22 +11,22 @@ app.use(express.static('public', {
 
 // Function to inject environment variables into HTML
 function injectEnvVariables(htmlContent) {
-    const entityDashboardBaseUrl = process.env.ENTITY_DASHBOARD_BASE_URL || 'https://api.entity.dashboard.hypersign.id';
-    const idDashboardServiceBaseUrl = process.env.ID_DASHBOARD_SERVICE_BASE_URL || 'https://api.cavach.hypersign.id';
+    const entityDashboardBaseUrl = process.env.HYPERSIGN_DASHBOARD_SERVICE_BASE_URL || 'https://api.entity.dashboard.hypersign.id';
+    const idDashboardServiceBaseUrl = process.env.ID_SERVICE_BASE_URL || 'https://api.cavach.hypersign.id';
     const widgetUrl = process.env.WIDGET_URL || 'https://verify.hypersign.id/';
     
     // Replace all environment variable references with actual values
     let processedHtml = htmlContent;
     
-    // Replace ENTITY_DASHBOARD_BASE_URL
+    // Replace HYPERSIGN_DASHBOARD_SERVICE_BASE_URL
     processedHtml = processedHtml.replace(
-        /const entityDashboardBaseUrl = process\.env\.ENTITY_DASHBOARD_BASE_URL \|\| '[^']*'/,
+        /const entityDashboardBaseUrl = process\.env\.HYPERSIGN_DASHBOARD_SERVICE_BASE_URL \|\| '[^']*'/,
         `const entityDashboardBaseUrl = '${entityDashboardBaseUrl}'`
     );
     
-    // Replace ID_DASHBOARD_SERVICE_BASE_URL
+    // Replace ID_SERVICE_BASE_URL
     processedHtml = processedHtml.replace(
-        /teneantUrl =\s+process\.env\.ID_DASHBOARD_SERVICE_BASE_URL \|\| "[^"]*"/,
+        /teneantUrl =\s+process\.env\.ID_SERVICE_BASE_URL \|\| "[^"]*"/,
         `teneantUrl = '${idDashboardServiceBaseUrl}'`
     );
     
