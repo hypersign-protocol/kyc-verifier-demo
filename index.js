@@ -15,26 +15,16 @@ function injectEnvVariables(htmlContent) {
     const idDashboardServiceBaseUrl = process.env.ID_SERVICE_BASE_URL || 'https://api.cavach.hypersign.id';
     const widgetUrl = process.env.WIDGET_URL || 'https://verify.hypersign.id/';
     
-    // Replace all environment variable references with actual values
-    let processedHtml = htmlContent;
+    // Inject environment variables as window properties at the start of the script
+    const envScript = `
+    <script>
+        window.HYPERSIGN_DASHBOARD_SERVICE_BASE_URL = '${entityDashboardBaseUrl}';
+        window.ID_SERVICE_BASE_URL = '${idDashboardServiceBaseUrl}';
+        window.WIDGET_URL = '${widgetUrl}';
+    </script>`;
     
-    // Replace HYPERSIGN_DASHBOARD_SERVICE_BASE_URL
-    processedHtml = processedHtml.replace(
-        /const entityDashboardBaseUrl = process\.env\.HYPERSIGN_DASHBOARD_SERVICE_BASE_URL \|\| '[^']*'/,
-        `const entityDashboardBaseUrl = '${entityDashboardBaseUrl}'`
-    );
-    
-    // Replace ID_SERVICE_BASE_URL
-    processedHtml = processedHtml.replace(
-        /teneantUrl =\s+process\.env\.ID_SERVICE_BASE_URL \|\| "[^"]*"/,
-        `teneantUrl = '${idDashboardServiceBaseUrl}'`
-    );
-    
-    // Replace WIDGET_URL
-    processedHtml = processedHtml.replace(
-        /const widgetBaseUrl = process\.env\.WIDGET_URL \|\| "[^"]*"/,
-        `const widgetBaseUrl = '${widgetUrl}'`
-    );
+    // Inject before the closing </head> tag
+    let processedHtml = htmlContent.replace('</head>', `${envScript}\n</head>`);
     
     return processedHtml;
 }
