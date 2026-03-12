@@ -355,9 +355,9 @@
           { icon: 'bi bi-credit-card', title: 'Verify ID Document', subtitle: 'Upload your ID for verification.' },
           { icon: 'bi bi-file-text',   title: 'Provide Consent',    subtitle: 'Agree to securely share your information.' },
         ],
-        async buildUrl(accessToken, ssiAccessToken) {
+        async buildUrl(accessToken, ssiAccessToken, tenantUrl) {
           const base = `${this.widgetBaseUrl}?kycAccessToken=${accessToken}&ssiAccessToken=${ssiAccessToken}`;
-          const { sessionId } = await ApiService.createKycSession(accessToken);
+          const { sessionId } = await ApiService.createKycSession(accessToken, tenantUrl);
           return sessionId ? `${base}&sessionId=${sessionId}` : base;
         },
       },
@@ -428,9 +428,9 @@
         return res.json();
       },
 
-      async createKycSession(accessToken , tenantUrl ) {
-        const res = await fetch(`https://api.cavach.hypersign.id${KYC_SESSION_PATH}`, {
-        // const res = await fetch(`${tenantUrl}${KYC_SESSION_PATH}`, {
+      async createKycSession(accessToken, tenantUrl) {
+        // const res = await fetch(`https://api.cavach.hypersign.id${KYC_SESSION_PATH}`, {
+        const res = await fetch(`${tenantUrl}${KYC_SESSION_PATH}`, {
           method: 'POST',
           headers: { 'x-kyc-access-token': accessToken, 'content-type': 'application/json' },
         });
@@ -491,6 +491,7 @@
 
         // ── Credentials (non-reactive — only used in API calls) ──────────────
         let ssiAccessToken = '';
+        let tenantUrl = '';
         const accessTokens = {};   // { kyc: '...', kyb: '...' }
 
         // ── Reactive State ───────────────────────────────────────────────────
@@ -547,6 +548,7 @@
           if (configData.themeColor && VALID_THEMES.includes(configData.themeColor))
                                           themeColor.value   = configData.themeColor;
           if (tokenData.ssiAccessToken)   ssiAccessToken     = tokenData.ssiAccessToken;
+          if (configData.tenantUrl)           tenantUrl          = configData.tenantUrl;
           Object.keys(FLOW_CONFIG).forEach(type => {
             const key = FLOW_CONFIG[type].tokenKey;
             if (tokenData[key]) accessTokens[type] = tokenData[key];
@@ -576,7 +578,7 @@
 
         async function buildWidgetUrl() {
           const accessToken = accessTokens[pageType.value] || '';
-          return flowConfig.value.buildUrl(accessToken, ssiAccessToken);
+          return flowConfig.value.buildUrl(accessToken, ssiAccessToken, tenantUrl);
         }
 
         // ── Actions ───────────────────────────────────────────────────────────
