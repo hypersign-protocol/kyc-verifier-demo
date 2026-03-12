@@ -429,7 +429,8 @@
       },
 
       async createKycSession(accessToken , tenantUrl ) {
-        const res = await fetch(`${tenantUrl}${KYC_SESSION_PATH}`, {
+        const res = await fetch(`https://api.cavach.hypersign.id${KYC_SESSION_PATH}`, {
+        // const res = await fetch(`${tenantUrl}${KYC_SESSION_PATH}`, {
           method: 'POST',
           headers: { 'x-kyc-access-token': accessToken, 'content-type': 'application/json' },
         });
