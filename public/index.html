@@ -428,7 +428,7 @@
         return res.json();
       },
 
-      async createKycSession(accessToken /*, tenantUrl */) {
+      async createKycSession(accessToken , tenantUrl ) {
         const res = await fetch(`${tenantUrl}${KYC_SESSION_PATH}`, {
           method: 'POST',
           headers: { 'x-kyc-access-token': accessToken, 'content-type': 'application/json' },
