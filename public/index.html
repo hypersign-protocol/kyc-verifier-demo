@@ -170,6 +170,25 @@
     .theme-grey { background: linear-gradient(45deg, #6b7280, #9ca3af); }
     .theme-light { background: linear-gradient(45deg, #6366f1, #8b5cf6); }
 
+    /* Spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block;
+      width: 2rem;
+      height: 2rem;
+      border: 3px solid var(--theme-border);
+      border-top-color: var(--theme-primary);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    .spinner-sm {
+      width: 1rem;
+      height: 1rem;
+      border-width: 2px;
+      border-color: rgba(255,255,255,0.35);
+      border-top-color: #fff;
+    }
+
     /* Powered-by logo: adapt for dark theme visibility */
     [data-theme="dark"] #poweredByLogo {
       filter: invert(1) brightness(1.6) contrast(1.1);
@@ -238,12 +257,16 @@
       </div>
 
       <!-- Call to Action -->
+      <div v-if="verifierId && isLoading && !configLoaded && !configError" class="mt-2 flex items-center justify-center py-2">
+        <span class="spinner"></span>
+      </div>
+
       <button v-if="configLoaded && !isVerified && !errorMessage" @click="handleStartClick"
-        :disabled="isVerifying"
+        :disabled="isLoading"
         class="theme-button mt-2 font-semibold px-6 py-2 rounded-xl shadow-lg transition-all duration-300"
-        :class="{ 'opacity-50 cursor-not-allowed': isVerifying }">
-        <span v-if="isVerifying">
-          <span class="spinner-border spinner-border-sm mr-2" role="status"></span> Verifying User...
+        :class="{ 'opacity-50 cursor-not-allowed': isLoading }">
+        <span v-if="isLoading">
+          <span class="spinner spinner-sm" role="status" aria-label="Loading"></span>
         </span>
         <span v-else>
           <i :class="flowConfig.buttonIcon + ' mr-1'"></i> Start Verification
@@ -557,7 +580,7 @@
         const configError       = ref('');
         const cidDetailsExpanded = ref(false);
         const cfgDetailsExpanded = ref(false);
-        const isVerifying       = ref(false);
+        const isLoading         = ref(false);
         const isVerified        = ref(false);
         const errorMessage      = ref('');
 
@@ -603,6 +626,7 @@
 
         // ── Orchestration ─────────────────────────────────────────────────────
         async function loadConfig() {
+          isLoading.value = true;
           try {
             const id = verifierId.value;
             if (!id) return false;
@@ -618,6 +642,8 @@
             setSandboxBanner(null);
             configError.value = 'Unable to load configuration from server. Please check the customer ID in the URL and try again.';
             return false;
+          } finally {
+            isLoading.value = false;
           }
         }
 
@@ -629,13 +655,13 @@
         // ── Actions ───────────────────────────────────────────────────────────
         async function handleStartClick() {
           try {
-            isVerifying.value  = true;
+            isLoading.value    = true;
             errorMessage.value = '';
             const url = await buildWidgetUrl();
             if (!url) return;
             const onClose = () => {
               errorMessage.value = 'Seems like you rejected the verification request!';
-              isVerifying.value  = false;
+              isLoading.value    = false;
             };
             if (flowConfig.value.openInPopup) {
               WindowService.openMobile(url, onClose);
@@ -645,7 +671,7 @@
           } catch (e) {
             console.error(e);
             errorMessage.value = e.message || 'Failed to start verification, please try again.';
-            isVerifying.value  = false;
+            isLoading.value    = false;
           }
         }
 
@@ -666,11 +692,11 @@
             const data = JSON.parse(event.data);
             if (data.status === 'success') {
               isVerified.value   = true;
-              isVerifying.value  = false;
+              isLoading.value    = false;
               errorMessage.value = '';
             } else if (data.status === 'error') {
               errorMessage.value = data.message || 'Failed to verify the user, please try again!';
-              isVerifying.value  = false;
+              isLoading.value    = false;
             }
           } catch (_) {}
         });
@@ -682,7 +708,7 @@
           sandboxVisible, sandboxText,
           configLoaded, configError,
           cidDetailsExpanded, cfgDetailsExpanded,
-          isVerifying, isVerified, errorMessage,
+          isLoading, isVerified, errorMessage,
           steps, flowConfig,
           handleStartClick,
           closeSandbox()    { sandboxVisible.value = false; },
