@@ -382,37 +382,81 @@
     //    Pure functions — no state, no side-effects.
     // ══════════════════════════════════════════════════════════════════════════
 
+      function decodeBase64Url(str) {
+        try {
+          str = str.replace(/-/g, '+').replace(/_/g, '/');
+
+          while (str.length % 4) {
+            str += '=';
+          }
+
+          return JSON.parse(atob(str));
+        } catch {
+          return null;
+        }
+      }
+    
+
     /** Extracts the verifier ID from the current URL (query param or path segment). */
-    function getVerifierId(url) {
+    function getVerifierData(url) {
       try {
         const parsedUrl = new URL(url);
         const params = parsedUrl.searchParams;
-        let candidate = null;
-        params.forEach((value, key) => {
-          const k = String(key).toLowerCase();
-          if ((k === 'verifierid' || k === 'customer-id' || k === 'id') && !candidate) {
-            candidate = value;
-          }
-        });
-        if (candidate?.trim()) return candidate.trim();
+
+      let candidate = null;
+
+      params.forEach((value, key) => {
+        const k = String(key).toLowerCase();
+        if ((k === 'verifierid' || k === 'customer-id' || k === 'id') && !candidate) {
+          candidate = value;
+        }
+      });
+
+      if (!candidate?.trim()) {
         const segments = parsedUrl.pathname.split('/').filter(Boolean);
         const last = segments[segments.length - 1] ?? '';
-        if (!/\.html?$/.test(last) && /^[A-Za-z0-9_-]{6,64}$/.test(last)) return last;
-        return null;
+        if (!/\.html?$/.test(last) && /^[A-Za-z0-9_-]{6,256}$/.test(last)) {
+          candidate = last;
+        }
+      }
+
+      if (!candidate) return null;
+
+      candidate = candidate.trim();
+      // try decoding base64url
+      try {
+        const decoded = decodeBase64Url(candidate);
+
+        if (decoded?.serviceId) {
+          return {
+            serviceId: decoded.serviceId,
+            pageType: decoded.pageType || 'kyc'
+          };
+        }
+      } catch (e) {
+       console.log('Unable to load data');
+      }
+
+      // fallback → plain id
+      return {
+        serviceId: candidate,
+        pageType: null
+      };
+
       } catch (err) {
         console.error('Invalid URL:', err.message);
         return null;
       }
-    }
-
+   }
     // ══════════════════════════════════════════════════════════════════════════
     // 3. API SERVICE
     //    All network calls in one place. Returns raw data; no UI concerns.
     // ══════════════════════════════════════════════════════════════════════════
     const ApiService = {
-      async loadVerifierConfig(verifierId) {
+      async loadVerifierConfig(verifierId, pageType) {
+        const query = pageType ? `?pageType=${pageType}` : '';
         const res = await fetch(
-          `${ENTITY_DASHBOARD_BASE_URL}/api/v1/app/verifier/${verifierId}`,
+          `${ENTITY_DASHBOARD_BASE_URL}/api/v1/app/verifier/${verifierId}${query}`,
           { method: 'GET', credentials: 'include', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } }
         );
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -496,7 +540,9 @@
 
         // ── Reactive State ───────────────────────────────────────────────────
         const savedTheme        = localStorage.getItem('preferred-theme');
-        const verifierId        = ref(getVerifierId(window.location.href));
+        const verifierData      = getVerifierData(window.location.href);
+        const verifierId        = ref(verifierData?.serviceId || null);
+        const urlPageType       = verifierData?.pageType || null;
         const serviceName       = ref('Hypersign KYC');
         const pageTitle         = ref('Verify Your Identity');
         const pageSubtitle      = ref('Please read the Terms & Conditions before proceeding');
@@ -560,8 +606,7 @@
           try {
             const id = verifierId.value;
             if (!id) return false;
-            const configData = await ApiService.loadVerifierConfig(id);
-            console.log('Config loaded:', configData);
+            const configData = await ApiService.loadVerifierConfig(id, urlPageType);
             const { serviceId: appId, _id: verifierConfigId } = configData;
             if (!appId) throw new Error('appId not found in config response');
             const tokenData = await ApiService.fetchTokens(verifierConfigId, appId);
