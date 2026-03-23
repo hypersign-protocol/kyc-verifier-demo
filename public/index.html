@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shareable KYC Link Page</title>
+  <title>Verifier</title>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
@@ -555,7 +555,6 @@
 
     createApp({
       setup() {
-
         // ── Credentials (non-reactive — only used in API calls) ──────────────
         let ssiAccessToken = '';
         let tenantUrl = '';
@@ -594,6 +593,15 @@
           localStorage.setItem('preferred-theme', val);
         }, { immediate: true });
 
+        const PAGE_TITLES = {
+          kyc: 'ID Verifier',
+          kyb: 'Business Verifier',
+        };
+        watch([pageType, configLoaded], ([type, loaded]) => {
+          document.title = loaded
+            ? (PAGE_TITLES[type] || 'Verifier')
+            : 'Verifier';
+        }, { immediate: true });
         // ── UI Helpers (need reactive refs — kept inside setup) ───────────────
         function setSandboxBanner(stage) {
           const normalized = stage ? String(stage).toLowerCase() : null;
@@ -666,7 +674,7 @@
             if (flowConfig.value.openInPopup) {
               WindowService.openMobile(url, onClose);
             } else {
-              WindowService.openDesktop(url, onClose);
+              window.location.href = url;               
             }
           } catch (e) {
             console.error(e);
