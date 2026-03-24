@@ -1,0 +1,15 @@
+node_modules
+.git
+.gitignore
+.env
+.env.*
+npm-debug.log*
+Dockerfile
+README.md
+.DS_Store
+netlify
+templates
+*.jpg
+*.jpeg
+*.png
+*.gif
