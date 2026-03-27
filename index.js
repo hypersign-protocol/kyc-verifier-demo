@@ -21,6 +21,7 @@ function injectEnvVariables(htmlContent) {
         window.HYPERSIGN_DASHBOARD_SERVICE_BASE_URL = '${entityDashboardBaseUrl}';
         window.ID_SERVICE_BASE_URL = '${idDashboardServiceBaseUrl}';
         window.WIDGET_URL = '${widgetUrl}';
+        window.KYC_WIDGET_URL = '${process.env.KYC_WIDGET_URL || 'https://verify.hypersign.id/'}';
     </script>`;
     
     // Inject before the closing </head> tag
