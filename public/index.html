@@ -379,7 +379,7 @@
           { icon: 'bi bi-file-text',   title: 'Provide Consent',    subtitle: 'Agree to securely share your information.' },
         ],
         async buildUrl(accessToken, ssiAccessToken, tenantUrl) {
-          const base = `${this.widgetBaseUrl}?kycAccessToken=${accessToken}&ssiAccessToken=${ssiAccessToken}`;
+          const base = `${this.widgetBaseUrl}?kycAccessToken=${accessToken}&ssiAccessToken=${ssiAccessToken}&utm_source=${encodeURIComponent(window.location.origin)}`;
           const { sessionId } = await ApiService.createKycSession(accessToken, tenantUrl);
           return sessionId ? `${base}&sessionId=${sessionId}` : base;
         },
@@ -395,7 +395,7 @@
           { icon: 'bi bi-people',       title: 'Stakeholders',     subtitle: 'Verify UBOs and Representatives.' },
         ],
         async buildUrl(accessToken, ssiAccessToken) {
-          return `${this.widgetBaseUrl}?kycAccessToken=${accessToken}&ssiAccessToken=${ssiAccessToken}`;
+          return `${this.widgetBaseUrl}?kycAccessToken=${accessToken}&ssiAccessToken=${ssiAccessToken}&utm_source=${encodeURIComponent(window.location.origin)}`;
         },
       },
     };
