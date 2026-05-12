@@ -9,8 +9,8 @@
     "build": "node build.js",
     "clean": "rm -rf dist",
     "start:dist": "node index.js",
-    "deploy": "npm run build && npm run deploy:local",
-    "deploy:local": "gh-pages -d dist -b gh-pages"
+    "deploy": "npm run build && npm run deploy:git",
+    "deploy:git": "gh-pages -d dist -b gh-pages"
   },
   "keywords": [],
   "author": "",
